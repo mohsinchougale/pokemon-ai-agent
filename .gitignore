@@ -1,0 +1,52 @@
+# Virtual environment
+.venv/
+
+# Python
+__pycache__/
+*.py[cod]
+*.so
+
+# macOS
+.DS_Store
+
+# Jupyter
+.ipynb_checkpoints/
+
+# IDEs
+.vscode/
+.idea/
+
+# Logs
+logs/
+*.log
+
+# Models
+models/*.pt
+models/*.pth
+models/*.ckpt
+
+# Data
+data/processed/
+data/external/
+
+# Experiment artifacts
+wandb/
+mlruns/
+
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Ruff
+.ruff_cache/
+
+# Mypy
+.mypy_cache/
+
+# Build
+dist/
+build/
+
+# Environment
+.env
