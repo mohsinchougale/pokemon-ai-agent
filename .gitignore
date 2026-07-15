@@ -50,3 +50,12 @@ build/
 
 # Environment
 .env
+
+# Kaggle competition files (licensed)
+data/raw/kaggle/
+
+# Replay files
+replays/
+
+# Local notebooks
+notebooks/
