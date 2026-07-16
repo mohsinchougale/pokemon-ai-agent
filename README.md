@@ -10,11 +10,13 @@ Building an autonomous Pokémon Trading Card Game agent for the Kaggle
 - ✅ Random baseline agent
 - ✅ Local battle execution
 - ✅ Evaluation framework
+- ✅ Card metadata parsing and lookup
+- ✅ Battle state exploration tools
+- ✅ Human-readable observation visualization
 
 ## Next Steps
 
-- Parse card metadata
-- Build state encoder
-- Implement heuristic agent
-- Implement search agent
-- Train RL agent
+- Build state encoder from simulator observations
+- Implement heuristic agent with domain-specific decision rules
+- Implement search-based agent (MCTS / tree search)
+- Train reinforcement learning agent
