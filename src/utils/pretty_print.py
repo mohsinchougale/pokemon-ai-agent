@@ -32,6 +32,21 @@ def option_type_name(option_type):
     )
 
 
+def print_pokemon(label, pokemon, card_db):
+
+    print(label)
+
+    if pokemon is None:
+        print("None")
+        return
+
+
+    print(
+        card_db.get_name(pokemon.id),
+        f"HP {pokemon.hp}/{pokemon.maxHp}",
+        f"Energies {len(pokemon.energies)}"
+    )
+
 def pretty_print_actions(obs, card_db):
 
     if isinstance(obs, dict):
@@ -108,7 +123,11 @@ def pretty_print_state(obs, card_db):
     print("="*50)
 
 
-    print("\nYOUR ACTIVE")
+    print_pokemon(
+    "\nYOUR ACTIVE",
+    player.active[0] if player.active else None,
+    card_db
+    )
 
 
     if len(player.active) > 0:
