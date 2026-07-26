@@ -53,7 +53,7 @@ Feature-driven agent using:
 - survival/value estimation
 - strategic scoring functions
 
-### Current Benchmarks
+## Current Benchmarks
 
 | Matchup | Win Rate |
 |---------|---------:|
@@ -147,9 +147,9 @@ Current capabilities:
 - ✅ Automatic energy allocation
 - ✅ Complete archetype generation
 
-### Implemented Archetypes
+## Implemented Archetypes
 
-#### Evolution Heavy
+### Evolution Heavy
 
 Focuses on:
 
@@ -157,7 +157,7 @@ Focuses on:
 - Stage 2 attackers
 - evolution consistency
 
-#### Balanced
+### Balanced
 
 Focuses on:
 
@@ -166,7 +166,7 @@ Focuses on:
 - consistency trainers
 - balanced resources
 
-#### Aggressive EX
+### Aggressive EX
 
 Focuses on:
 
@@ -245,52 +245,87 @@ Example evaluation:
 
 # Deck Optimization
 
-Implemented the first optimization engine.
+Implemented a mutation-based deck optimization engine.
 
-Rather than evaluating only a single generated deck, the optimizer now searches through many candidate decks and keeps the strongest one.
+Instead of evaluating only a single generated deck, the optimizer now searches through multiple candidate decks and keeps stronger variations.
 
 ## Current Optimization Strategy
 
 Current workflow:
 
-1. Generate a candidate deck
-2. Validate legality
-3. Evaluate strategic quality
-4. Keep the highest-scoring deck
-5. Repeat for many iterations
+1. Generate an initial deck from an archetype
+2. Apply deck mutations
+3. Validate mutated decks
+4. Evaluate strategic quality
+5. Keep improvements using hill-climbing search
+6. Track the best-performing deck
 
 This forms the foundation for future evolutionary search algorithms.
 
-### Multi-Archetype Search
+## Optimization Results
 
-The optimizer currently compares multiple archetypes automatically.
-
-Current search includes:
-
-- Evolution Heavy
-- Balanced
-- Aggressive EX
-
-Example search output:
+Latest optimizer benchmark:
 
 ```text
-EvolutionHeavyArchetype: 0/50 best=102
-EvolutionHeavyArchetype: 10/50 best=105
-EvolutionHeavyArchetype: 20/50 best=105
-EvolutionHeavyArchetype: 30/50 best=108
-EvolutionHeavyArchetype: 40/50 best=114
+EvolutionHeavyArchetype: 0/50 best=100
+EvolutionHeavyArchetype: 10/50 best=103
+EvolutionHeavyArchetype: 20/50 best=111
+EvolutionHeavyArchetype: 30/50 best=111
+EvolutionHeavyArchetype: 40/50 best=111
 
 BalancedArchetype: 0/50 best=114
-BalancedArchetype: 10/50 best=114
-BalancedArchetype: 20/50 best=114
-BalancedArchetype: 30/50 best=114
-BalancedArchetype: 40/50 best=114
+BalancedArchetype: 10/50 best=116
+BalancedArchetype: 20/50 best=120
+BalancedArchetype: 30/50 best=122
+BalancedArchetype: 40/50 best=122
 
 AggressiveEXArchetype: 0/50 best=100
-...
+AggressiveEXArchetype: 10/50 best=100
+AggressiveEXArchetype: 20/50 best=100
+AggressiveEXArchetype: 30/50 best=100
+AggressiveEXArchetype: 40/50 best=100
+
+
+====================
+Optimization Results
+====================
+
+Rank: 1
+Archetype: BalancedArchetype
+Initial Score: 114
+Best Score: 122
+Improvements: 4
+Iterations: 50
+Deck Size: 60
+
+Rank: 2
+Archetype: EvolutionHeavyArchetype
+Initial Score: 100
+Best Score: 111
+Improvements: 3
+Iterations: 50
+Deck Size: 60
+
+Rank: 3
+Archetype: AggressiveEXArchetype
+Initial Score: 100
+Best Score: 102
+Improvements: 1
+Iterations: 50
+Deck Size: 60
+
+====================
+Optimization Complete
+====================
 ```
 
-The optimizer now reports live progress during search, making long optimization runs easier to monitor.
+The optimizer now:
+
+- compares multiple archetypes
+- mutates existing decks
+- tracks best-performing variations
+- measures improvement over initial decks
+- ranks archetypes automatically
 
 ---
 
@@ -323,7 +358,7 @@ The optimizer now reports live progress during search, making long optimization 
           │
           ▼
 
- Archetype Search
+ Mutation Search + Archetype Ranking
           │
           ▼
 
@@ -376,62 +411,31 @@ Completed:
 
 The system can now generate complete legal 60-card decks.
 
-Example:
-
-Instead of:
-
-```text
-Random Pokémon
-
-- Greninja ex
-- Charizard
-- Magcargo ex
-- Random Stage 1 cards
-```
-
-Generate:
-
-```text
-Evolution Core
-
-Tepig
-   │
-Pignite
-   │
-Mega Emboar ex
-
-+
-
-Supporting trainers
-
-+
-
-Required energy package
-
-+
-
-Consistency cards
-```
-
 ---
 
-## Phase 4 — Deck Optimization 🚧
+## Phase 4 — Deck Optimization ✅
 
-Current progress:
+Completed:
 
-- ✅ Multi-archetype optimization
-- ✅ Random-search optimizer
-- ✅ Live optimization progress
-- ✅ Best-deck tracking
-- ✅ Automatic archetype comparison
+- Multi-archetype optimization
+- Mutation-based deck optimizer
+- Hill-climbing improvement search
+- Best-deck tracking
+- Improvement tracking
+- Live optimization progress
+- Automatic archetype comparison
+- Archetype ranking system
 
-Upcoming work:
+Current capability:
 
-- Mutation operators
-- Crossover operators
-- Local search improvements
+The system can automatically improve generated decks instead of only evaluating static archetypes.
+
+Upcoming:
+
+- Advanced mutation strategies
+- Crossover-based evolutionary search
+- Population-based optimization
 - Self-play driven evaluation
-- Evolutionary optimization
 - Competitive deck discovery
 
 ---

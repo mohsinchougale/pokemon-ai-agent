@@ -16,7 +16,7 @@ from deckbuilding.optimization.search import ArchetypeSearch
 
 
 # -----------------------------------
-# Load Card Database
+# Card Database
 # -----------------------------------
 
 db = CardDatabase(
@@ -44,27 +44,22 @@ evolution_db = EvolutionLineDatabase(
     extractor
 )
 
-
 evolution_db.build()
 
 
 
 # -----------------------------------
-# Evolution Analyzer
+# Evaluation
 # -----------------------------------
 
 evolution_analyzer = EvolutionAnalyzer()
 
 
-
-# -----------------------------------
-# Evaluation + Validation
-# -----------------------------------
-
 evaluator = DeckEvaluator(
     extractor,
     evolution_analyzer
 )
+
 
 
 validator = DeckValidator(
@@ -102,7 +97,8 @@ archetypes = [
 search = ArchetypeSearch(
     archetypes,
     evaluator,
-    validator
+    validator,
+    db
 )
 
 
@@ -122,22 +118,43 @@ print("Optimization Results")
 print("====================")
 
 
-for result in results:
 
-    print("\n")
+for rank, result in enumerate(results, start=1):
+
+    print("\nRank:", rank)
+
     print(
+        "Archetype:",
         result["archetype"]
     )
 
     print(
-        "Score:",
+        "Initial Score:",
+        result["initial_score"]
+    )
+
+    print(
+        "Best Score:",
         result["score"]
     )
 
-
-    deck = result["deck"]
+    print(
+        "Improvements:",
+        result["improvements"]
+    )
 
     print(
-        "Deck size:",
-        len(deck.cards)
+        "Iterations:",
+        result["iterations"]
     )
+
+
+    print(
+        "Deck Size:",
+        len(result["deck"].cards)
+    )
+
+
+print("\n====================")
+print("Optimization Complete")
+print("====================")
