@@ -13,11 +13,8 @@ class Deck:
         self.cards = cards
 
 
-
     def count(self):
-
         return len(self.cards)
-
 
 
     def card_counts(self):
@@ -25,27 +22,33 @@ class Deck:
         return Counter(self.cards)
 
 
-
     def validate_duplicates(self):
 
         counts = self.card_counts()
 
-
         for card_id, count in counts.items():
 
-            # Energy cards are handled separately later
+            # TODO:
+            # Basic Energy can exceed 4 copies.
+            # Handle this after integrating CardDatabase.
             if count > 4:
-
                 return False
-
 
         return True
 
 
-
     def __len__(self):
-
         return len(self.cards)
+
+
+    def __iter__(self):
+        """
+        Allow Deck to behave like a list of card IDs.
+        Example:
+            for card_id in deck:
+                ...
+        """
+        return iter(self.cards)
 
 
 
@@ -58,6 +61,5 @@ def load_deck(path):
             for x in f.readlines()
             if x.strip()
         ]
-
 
     return Deck(cards)

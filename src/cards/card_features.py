@@ -10,6 +10,7 @@ class CardFeatures:
     # Classification
     stage: str
     category: str
+    previous_stage: str
 
     is_pokemon: bool
     is_trainer: bool
@@ -57,7 +58,11 @@ class CardFeatureExtractor:
 
 
         is_pokemon = (
-            "Pokémon" in str(stage)
+            stage in [
+                "Basic Pokémon",
+                "Stage 1 Pokémon",
+                "Stage 2 Pokémon"
+            ]
         )
 
 
@@ -90,6 +95,7 @@ class CardFeatureExtractor:
 
             stage=stage,
 
+            previous_stage=self.db.get_previous_stage(card_id),
 
             hp=self._parse_number(
                 self.db.get_hp(card_id)

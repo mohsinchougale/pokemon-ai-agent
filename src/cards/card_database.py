@@ -134,10 +134,17 @@ class CardDatabase:
 
     def get_previous_stage(self, card_id: int):
 
-        return self._get_value(
-            card_id,
-            "Previous stage"
-        )
+        card = self.get_card(card_id)
+
+        if card is None:
+            return ""
+
+        value = card["Previous stage"]
+
+        if pd.isna(value):
+            return ""
+
+        return value
 
 
     def get_attacks(self, card_id: int):

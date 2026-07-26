@@ -21,8 +21,8 @@ for i in range(1000):
 
     print(f"Running game {i+1}/1000")
 
-    agent1 = StrategicAgent(deck.cards)
-    agent2 = HeuristicAgent(deck.cards)
+    agent1 = StrategicAgent(deck)
+    agent2 = HeuristicAgent(deck)
 
     env = PTCGEnvironment()
 
