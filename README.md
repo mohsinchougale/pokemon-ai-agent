@@ -1,6 +1,6 @@
 # Pokémon TCG AI Agent
 
-Building an autonomous Pokémon Trading Card Game agent for the Kaggle
+Building an autonomous Pokémon Trading Card Game agent for the Kaggle  
 **"The Pokémon Company – PTCG AI Battle Challenge Simulation."**
 
 ## Current Progress
@@ -24,6 +24,12 @@ Building an autonomous Pokémon Trading Card Game agent for the Kaggle
 - ✅ Card metadata utilities
 - ✅ Observation exploration tools
 - ✅ State encoder for ML agents
+- ✅ Card feature extraction pipeline
+- ✅ Pokémon / Trainer / Energy classification
+- ✅ Attack parsing and filtering
+- ✅ Damage and energy cost extraction
+- ✅ Ability and Pokémon ex detection
+- ✅ Card metadata normalization
 
 ## Current Benchmarks
 
@@ -32,7 +38,25 @@ Building an autonomous Pokémon Trading Card Game agent for the Kaggle
 | Strategic vs Random | **81.7%** |
 | Strategic vs Heuristic | **87.7%** |
 
-(1000 self-play games per matchup)
+*(1000 agent-vs-agent simulations per matchup)*
+
+## Current Architecture
+
+    Card Database
+          |
+          v
+    Card Feature Extractor
+          |
+          v
+    Strategic Agent
+          |
+          v
+    Battle Simulator
+          |
+          v
+    Evaluation Framework
+
+The current strategic agent uses extracted card knowledge and game-state features to make rule-based decisions during battles.
 
 ## Project Roadmap
 
@@ -41,18 +65,25 @@ Building an autonomous Pokémon Trading Card Game agent for the Kaggle
 - Heuristic agent
 - Strategic rule-based agent
 
-### Phase 2 — Rich State Representation (Next)
-- Expand feature engineering
-- Parse full card database
-- Build structured card knowledge base
-- Improve strategic evaluation
+### Phase 2 — Strategic Understanding (In Progress)
+- Expand card feature engineering
+- Build deck evaluation framework
+- Analyze card synergy and deck composition
+- Improve action evaluation logic
+- Add richer game-state representations
 
-### Phase 3 — Learning Agents
-- Imitation learning from strategic agent
-- Reinforcement learning through self-play
+### Phase 3 — Advanced Decision Making
 - Search-based methods (MCTS / rollout)
+- Simulation-based action planning
+- Improved strategy evaluation
 
-### Phase 4 — Deck Optimization
+### Phase 4 — Learning Agents
+- Generate self-play datasets
+- Imitation learning from expert agents
+- Reinforcement learning through self-play
+- Policy/value-based agents
+
+### Phase 5 — Deck Optimization
 - Automated deck construction
 - Evolutionary deck search
 - Joint optimization of deck and policy
