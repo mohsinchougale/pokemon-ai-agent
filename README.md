@@ -4,8 +4,10 @@ Building an autonomous Pokémon Trading Card Game agent for the Kaggle
 **"The Pokémon Company – PTCG AI Battle Challenge Simulation."**
 
 The goal of this project is to develop an AI agent capable of playing Pokémon TCG through simulation, combining:
+
 - rule-based strategies
 - structured card understanding
+- evolution-aware deck construction
 - deck optimization
 - search-based decision making
 - reinforcement learning
@@ -24,28 +26,55 @@ The goal of this project is to develop an AI agent capable of playing Pokémon T
 
 ---
 
-## Agents
+# Agents
 
-- ✅ Random baseline agent
-- ✅ Heuristic rule-based agent
-- ✅ Strategic feature-based agent
+Implemented multiple agent baselines:
 
-Current strategic agent uses:
+## Random Agent ✅
+
+Simple random action selection baseline used for benchmarking.
+
+## Heuristic Agent ✅
+
+Rule-based decision making using:
+
+- available action evaluation
+- damage opportunities
+- survival considerations
+- basic board value estimation
+
+## Strategic Agent ✅
+
+Feature-driven agent using:
+
 - board state evaluation
 - Pokémon strength heuristics
 - attack selection logic
 - survival/value estimation
+- strategic scoring functions
+
+Current benchmarks:
+
+| Matchup | Win Rate |
+|---------|---------:|
+| Strategic vs Random | **81.7%** |
+| Strategic vs Heuristic | **87.7%** |
+
+(1000 self-play games per matchup)
 
 ---
 
-## Card Knowledge System
+# Card Knowledge System
 
-Implemented structured card understanding pipeline.
+Implemented a structured card understanding pipeline.
 
-Features extracted:
+The agent can now interpret card metadata and extract strategic information.
 
-### Pokémon Features
-- Card type classification
+## Pokémon Features
+
+Extracted features:
+
+- Card classification
 - Evolution stage
 - Previous evolution tracking
 - HP statistics
@@ -55,38 +84,88 @@ Features extracted:
 - Pokémon ex detection
 - Ability detection
 
-### Trainer/Energy Features
+## Trainer & Energy Features
+
+Supported:
+
 - Trainer classification
 - Energy classification
-- Card metadata lookup utilities
+- Card metadata lookup
+- Card search utilities
 
 ---
 
-## Deck Generation & Evaluation
+# Evolution Knowledge System
 
-Implemented a deck analysis framework.
+Implemented evolution-aware card reasoning.
+
+The system now builds structured Pokémon evolution chains.
+
+Example:
+
+```
+Froakie
+   |
+Frogadier
+   |
+Greninja ex
+```
 
 Current capabilities:
 
-### Deck Generation
-- ✅ Random deck generation
-- ✅ Valid 60-card deck construction
-- ✅ Card database integration
+- ✅ Evolution stage linking
+- ✅ Previous-stage resolution
+- ✅ Evolution line construction
+- ✅ Evolution database generation
 
-### Deck Evaluation
+Current database:
+
+```
+336 evolution lines discovered
+```
+
+This allows future deck generation algorithms to reason about playable Pokémon cores instead of selecting isolated cards.
+
+---
+
+# Deck Generation & Evaluation
+
+Implemented a complete deck analysis framework.
+
+## Deck Generation
+
+Current capabilities:
+
+- ✅ Random 60-card deck generation
+- ✅ Card database integration
+- ✅ Valid deck construction
+
+## Deck Evaluation
 
 Evaluates:
 
+### Composition
+
 - Pokémon / Trainer / Energy balance
-- Basic / Stage 1 / Stage 2 distribution
-- Evolution consistency
-- Orphan evolution detection
-- Pokémon quality
+- Basic Pokémon count
+- Stage 1 Pokémon count
+- Stage 2 Pokémon count
+
+### Pokémon Strength
+
 - Average HP
 - Average damage output
+- Pokémon quality score
 - ex Pokémon count
 
-Example evaluation output:
+### Evolution Consistency
+
+- Evolution line detection
+- Supported Stage 1 evolutions
+- Supported Stage 2 evolutions
+- Orphan evolution detection
+
+Example output:
 
 ```text
 {
@@ -99,6 +178,7 @@ stage1_pokemon: 5,
 stage2_pokemon: 1,
 
 evolution_lines: 1,
+
 orphan_stage1: 4,
 orphan_stage2: 1,
 
@@ -116,99 +196,141 @@ deck_score: 66
 ```
 Pokemon TCG AI Agent
 
+
+                 Card Database
+                       |
+                       v
+
+             Card Feature Extraction
+                       |
+        +--------------+--------------+
+        |                             |
+        v                             v
+
+ Evolution Knowledge            State Encoder
+        |                             |
+        v                             v
+
+ Deck Generation              Battle Agents
         |
         v
 
-Card Database
+ Deck Evaluation
         |
         v
 
-Card Feature Extraction
-        |
-        |
-        +----------------+
-        |                |
-        v                v
+ Deck Optimization
 
-State Encoder      Deck Evaluator
-        |                |
-        |                |
-        v                v
 
-AI Agents       Deck Generation
-        |
-        v
+                       |
+                       v
 
-Battle Simulator
-        |
-        v
+              Pokémon TCG Simulator
 
-Evaluation Framework
+                       |
+                       v
+
+            Evaluation Framework
 ```
-
----
-
-# Current Benchmarks
-
-| Matchup | Win Rate |
-|---------|---------:|
-| Strategic vs Random | **81.7%** |
-| Strategic vs Heuristic | **87.7%** |
-
-(1000 self-play games per matchup)
 
 ---
 
 # Project Roadmap
 
+
 ## Phase 1 — Baseline Agents ✅
 
 Completed:
+
 - Random agent
 - Heuristic agent
 - Strategic rule-based agent
+
 
 ---
 
 ## Phase 2 — Card Understanding & Evaluation ✅
 
 Completed:
+
 - Card metadata pipeline
 - Feature extraction
+- Attack parsing
+- Ability detection
 - Evolution analysis
+- Evolution database
 - Deck evaluation framework
 
----
-
-## Phase 3 — Constraint-Based Deck Generation (Next)
-
-Goals:
-
-- Generate playable evolution lines
-- Avoid orphan evolutions
-- Balance Pokémon / Trainer / Energy ratios
-- Prefer synergistic card combinations
-
-Planned components:
-
-- Evolution line database
-- Constraint-based deck builder
-- Deck scoring optimization
 
 ---
 
-## Phase 4 — Deck Optimization
+# Phase 3 — Constraint-Based Deck Generation 🚧
+
+Current focus.
+
+Goal:
+
+Move from random decks to strategically meaningful decks.
 
 Planned:
 
-- Genetic algorithm deck search
-- Mutation and crossover strategies
-- Automated deck improvement
-- Optimized decks for self-play training
+- Evolution-core based Pokémon selection
+- Constraint-based deck construction
+- Balanced Pokémon / Trainer / Energy ratios
+- Avoid orphan evolutions
+- Synergistic card selection
+- Automated deck scoring
+
+
+Example:
+
+Instead of:
+
+```
+Random Pokémon:
+- Greninja ex
+- Charizard
+- Magcargo ex
+- Random Stage 1 cards
+```
+
+Generate:
+
+```
+Evolution Core:
+
+Froakie
+   |
+Frogadier
+   |
+Greninja ex
+
+
++
+Supporting trainers
++
+Required energy package
++
+Consistency cards
+```
+
 
 ---
 
-## Phase 5 — Advanced AI Agents
+# Phase 4 — Deck Optimization
+
+Planned:
+
+- Evolutionary deck search
+- Mutation strategies
+- Crossover strategies
+- Self-play based deck improvement
+- Automated competitive deck discovery
+
+
+---
+
+# Phase 5 — Advanced AI Agents
 
 Planned:
 
@@ -216,6 +338,8 @@ Planned:
 - Rollout-based planning
 - Imitation learning
 - Reinforcement learning through self-play
+- Learned policy networks
+
 
 ---
 
@@ -235,7 +359,9 @@ src/
 │   ├── deck.py
 │   ├── deck_generator.py
 │   ├── deck_evaluator.py
-│   └── evolution.py
+│   ├── evolution.py
+│   ├── evolution_builder.py
+│   └── evolution_database.py
 │
 ├── environment/
 │   └── ptcg_env.py
@@ -254,10 +380,13 @@ src/
 
 # Future Vision
 
-The final objective is an autonomous Pokémon TCG agent that can:
+The final objective is an autonomous Pokémon TCG agent capable of:
 
-- understand card interactions
-- construct competitive decks
-- plan multiple turns ahead
-- adapt strategies through self-play
-- combine search and learning-based approaches
+- understanding card interactions
+- constructing competitive decks
+- planning multiple turns ahead
+- optimizing decks through search
+- adapting strategies through self-play
+- combining symbolic reasoning with machine learning
+
+The long-term goal is a complete AI system that can discover, evaluate, and play Pokémon TCG strategies autonomously.

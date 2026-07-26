@@ -10,11 +10,13 @@ class CardDatabase:
 
         self.cards = pd.read_csv(csv_path)
 
-        # Fast lookup by Card ID
-        self.cards.set_index(
-            "Card ID",
+        # Remove duplicate card IDs before indexing
+        self.cards.drop_duplicates(
+            subset=["Card ID"],
             inplace=True
         )
+        
+        self.cards.set_index("Card ID", inplace=True)
 
     def get_rule(self, card_id):
 
