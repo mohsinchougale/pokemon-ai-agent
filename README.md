@@ -28,7 +28,7 @@ The goal of this project is to develop an AI agent capable of playing Pokémon T
 
 # Agents
 
-Implemented multiple agent baselines:
+Implemented multiple agent baselines.
 
 ## Random Agent ✅
 
@@ -53,7 +53,7 @@ Feature-driven agent using:
 - survival/value estimation
 - strategic scoring functions
 
-Current benchmarks:
+### Current Benchmarks
 
 | Matchup | Win Rate |
 |---------|---------:|
@@ -68,46 +68,46 @@ Current benchmarks:
 
 Implemented a structured card understanding pipeline.
 
-The agent can now interpret card metadata and extract strategic information.
+The agent now interprets raw card metadata and converts every card into a collection of strategic features.
 
 ## Pokémon Features
 
-Extracted features:
+Extracted features include:
 
 - Card classification
 - Evolution stage
 - Previous evolution tracking
 - HP statistics
 - Attack parsing
-- Damage estimation
+- Maximum damage extraction
 - Energy requirements
 - Pokémon ex detection
 - Ability detection
 
 ## Trainer & Energy Features
 
-Supported:
+Supported functionality:
 
 - Trainer classification
 - Energy classification
 - Card metadata lookup
-- Card search utilities
+- Fast card search utilities
 
 ---
 
 # Evolution Knowledge System
 
-Implemented evolution-aware card reasoning.
+Implemented evolution-aware reasoning.
 
-The system now builds structured Pokémon evolution chains.
+Instead of treating every Pokémon independently, the agent now builds complete evolution chains.
 
 Example:
 
 ```text
 Froakie
-   |
+   │
 Frogadier
-   |
+   │
 Greninja ex
 ```
 
@@ -128,26 +128,28 @@ This allows future deck generation algorithms to reason about playable Pokémon 
 
 ---
 
-# Deck Generation & Evaluation
+# Deck Construction System
 
-Implemented a complete deck construction and evaluation framework.
+Implemented a complete constraint-based deck generation framework.
+
+Instead of randomly choosing 60 cards, the generator now constructs legal decks around predefined strategic archetypes.
 
 ## Deck Generation
 
 Current capabilities:
 
-- ✅ Random 60-card deck generation
+- ✅ Random legal 60-card generation
 - ✅ Card database integration
-- ✅ Valid deck construction
+- ✅ Constraint-based deck construction
 - ✅ Strategy-based Pokémon selection
 - ✅ Evolution-aware deck building
-- ✅ Trainer selection
-- ✅ Energy allocation
+- ✅ Trainer package selection
+- ✅ Automatic energy allocation
 - ✅ Complete archetype generation
 
-Implemented deck archetypes:
+### Implemented Archetypes
 
-### Evolution Heavy
+#### Evolution Heavy
 
 Focuses on:
 
@@ -155,115 +157,181 @@ Focuses on:
 - Stage 2 attackers
 - evolution consistency
 
-### Balanced
-
-Combines:
-
-- strong evolution lines
-- standalone attackers
-- consistency-focused trainers
-
-### Aggressive EX
+#### Balanced
 
 Focuses on:
 
-- high-damage Pokémon ex
-- strong standalone attackers
+- evolution lines
+- standalone attackers
+- consistency trainers
+- balanced resources
+
+#### Aggressive EX
+
+Focuses on:
+
+- Pokémon ex
+- high HP attackers
+- high damage output
 - fast offensive pressure
 
 ---
 
-## Deck Evaluation
+# Deck Evaluation System
 
-Evaluates:
+Implemented a feature-based deck scoring engine.
 
-### Composition
+Every generated deck is analyzed across multiple strategic dimensions.
+
+## Composition Analysis
+
+Measures:
 
 - Pokémon / Trainer / Energy balance
 - Basic Pokémon count
-- Stage 1 Pokémon count
-- Stage 2 Pokémon count
+- Stage 1 count
+- Stage 2 count
 
-### Pokémon Strength
+## Pokémon Quality
+
+Measures:
 
 - Average HP
 - Average damage output
 - Pokémon quality score
-- ex Pokémon count
+- Pokémon ex count
 
-### Evolution Consistency
+Unlike earlier versions, deck strength is no longer based only on HP and evolution consistency.
+
+Attack damage is now incorporated into the evaluation, allowing stronger offensive decks to receive higher scores.
+
+## Evolution Consistency
+
+Analyzes:
 
 - Evolution line detection
 - Supported Stage 1 evolutions
 - Supported Stage 2 evolutions
 - Orphan evolution detection
 
-Example output:
+Example evaluation:
 
 ```text
 {
-pokemon_count: 15,
-energy_count: 15,
-trainer_count: 30,
+    pokemon_count: 15,
+    energy_count: 15,
+    trainer_count: 30,
 
-basic_pokemon: 9,
-stage1_pokemon: 5,
-stage2_pokemon: 1,
+    basic_pokemon: 9,
+    stage1_pokemon: 5,
+    stage2_pokemon: 1,
 
-evolution_lines: 1,
+    average_hp: 171.6,
+    average_damage: 122.4,
 
-orphan_stage1: 4,
-orphan_stage2: 1,
+    pokemon_quality: 15,
 
-pokemon_quality: 6,
-evolution_score: -10,
+    evolution_lines: 3,
+    orphan_stage1: 1,
+    orphan_stage2: 0,
 
-deck_score: 66
+    evolution_score: 19,
+
+    deck_score: 114
 }
 ```
 
 ---
 
+# Deck Optimization
+
+Implemented the first optimization engine.
+
+Rather than evaluating only a single generated deck, the optimizer now searches through many candidate decks and keeps the strongest one.
+
+## Current Optimization Strategy
+
+Current workflow:
+
+1. Generate a candidate deck
+2. Validate legality
+3. Evaluate strategic quality
+4. Keep the highest-scoring deck
+5. Repeat for many iterations
+
+This forms the foundation for future evolutionary search algorithms.
+
+### Multi-Archetype Search
+
+The optimizer currently compares multiple archetypes automatically.
+
+Current search includes:
+
+- Evolution Heavy
+- Balanced
+- Aggressive EX
+
+Example search output:
+
+```text
+EvolutionHeavyArchetype: 0/50 best=102
+EvolutionHeavyArchetype: 10/50 best=105
+EvolutionHeavyArchetype: 20/50 best=105
+EvolutionHeavyArchetype: 30/50 best=108
+EvolutionHeavyArchetype: 40/50 best=114
+
+BalancedArchetype: 0/50 best=114
+BalancedArchetype: 10/50 best=114
+BalancedArchetype: 20/50 best=114
+BalancedArchetype: 30/50 best=114
+BalancedArchetype: 40/50 best=114
+
+AggressiveEXArchetype: 0/50 best=100
+...
+```
+
+The optimizer now reports live progress during search, making long optimization runs easier to monitor.
+
+---
+
 # Current Architecture
 
-```
-Pokemon TCG AI Agent
+```text
+                     Card Database
+                           │
+                           ▼
 
+                Card Feature Extraction
+                           │
+          ┌────────────────┴────────────────┐
+          │                                 │
+          ▼                                 ▼
 
-                 Card Database
-                       |
-                       v
+ Evolution Knowledge                 State Encoder
+          │                                 │
+          ▼                                 ▼
 
-             Card Feature Extraction
-                       |
-        +--------------+--------------+
-        |                             |
-        v                             v
+  Deck Construction                 Battle Agents
+          │
+          ▼
 
- Evolution Knowledge            State Encoder
-        |                             |
-        v                             v
+    Deck Evaluation
+          │
+          ▼
 
- Deck Generation              Battle Agents
-        |
-        v
+    Deck Optimizer
+          │
+          ▼
 
- Deck Evaluation
-        |
-        v
+ Archetype Search
+          │
+          ▼
 
- Deck Optimization
+ Pokémon TCG Simulator
+          │
+          ▼
 
-
-                       |
-                       v
-
-              Pokémon TCG Simulator
-
-                       |
-                       v
-
-            Evaluation Framework
+ Evaluation Framework
 ```
 
 ---
@@ -294,7 +362,7 @@ Completed:
 
 ---
 
-# Phase 3 — Constraint-Based Deck Generation ✅
+## Phase 3 — Constraint-Based Deck Construction ✅
 
 Completed:
 
@@ -313,7 +381,8 @@ Example:
 Instead of:
 
 ```text
-Random Pokémon:
+Random Pokémon
+
 - Greninja ex
 - Charizard
 - Magcargo ex
@@ -323,53 +392,66 @@ Random Pokémon:
 Generate:
 
 ```text
-Evolution Core:
+Evolution Core
 
 Tepig
-   |
+   │
 Pignite
-   |
+   │
 Mega Emboar ex
 
++
+
+Supporting trainers
 
 +
-Supporting trainers
-+
+
 Required energy package
+
 +
+
 Consistency cards
 ```
 
 ---
 
-# Phase 4 — Deck Optimization 🚧
+## Phase 4 — Deck Optimization 🚧
 
-Planned:
+Current progress:
 
-- Evolutionary deck search
-- Mutation strategies
-- Crossover strategies
-- Self-play based deck improvement
-- Automated competitive deck discovery
-- Deck scoring optimization
+- ✅ Multi-archetype optimization
+- ✅ Random-search optimizer
+- ✅ Live optimization progress
+- ✅ Best-deck tracking
+- ✅ Automatic archetype comparison
+
+Upcoming work:
+
+- Mutation operators
+- Crossover operators
+- Local search improvements
+- Self-play driven evaluation
+- Evolutionary optimization
+- Competitive deck discovery
 
 ---
 
-# Phase 5 — Advanced AI Agents
+## Phase 5 — Advanced AI Agents
 
 Planned:
 
 - Monte Carlo Tree Search (MCTS)
 - Rollout-based planning
-- Imitation learning
+- Hidden-information reasoning
+- Search-based battle planning
 - Reinforcement learning through self-play
-- Learned policy networks
+- Learned policy/value networks
 
 ---
 
 # Project Structure
 
-```
+```text
 src/
 
 ├── agent/
@@ -385,11 +467,16 @@ src/
 │   ├── deck.py
 │   ├── deck_generator.py
 │   ├── deck_validator.py
+│   ├── deck_evaluator.py
 │   │
 │   ├── archetypes/
 │   │   ├── evolution_heavy.py
 │   │   ├── balanced.py
 │   │   └── aggressive_ex.py
+│   │
+│   ├── optimization/
+│   │   ├── optimizer.py
+│   │   └── search.py
 │   │
 │   ├── pokemon/
 │   │   ├── pool.py
@@ -426,11 +513,11 @@ src/
 
 The final objective is an autonomous Pokémon TCG agent capable of:
 
-- understanding card interactions
+- understanding complex card interactions
 - constructing competitive decks
 - planning multiple turns ahead
 - optimizing decks through search
 - adapting strategies through self-play
 - combining symbolic reasoning with machine learning
 
-The long-term goal is a complete AI system that can discover, evaluate, and play Pokémon TCG strategies autonomously.
+Ultimately, the project aims to build a complete end-to-end Pokémon TCG AI capable of discovering strong decks, learning effective strategies, and competing autonomously against other advanced agents.
