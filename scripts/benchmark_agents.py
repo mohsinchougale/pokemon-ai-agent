@@ -3,6 +3,8 @@ sys.path.append("src")
 
 from environment.ptcg_env import PTCGEnvironment
 from agent.random_agent import RandomAgent
+from agent.heuristic_agent import HeuristicAgent
+from agent.strategic_agent import StrategicAgent
 from cards.deck import load_deck
 from evaluation.battle_stats import BattleStats
 
@@ -19,8 +21,8 @@ for i in range(1000):
 
     print(f"Running game {i+1}/1000")
 
-    agent1 = RandomAgent(deck)
-    agent2 = RandomAgent(deck)
+    agent1 = StrategicAgent(deck)
+    agent2 = HeuristicAgent(deck)
 
     env = PTCGEnvironment()
 
@@ -40,7 +42,24 @@ for i in range(1000):
         else:
             action = agent2.act(obs)
 
-        obs = env.step(action)
+        try:
+            obs = env.step(action)
+
+        except Exception as e:
+
+            print("\n========== CRASH ==========")
+            print("Player:", player)
+            print("Action returned:", action)
+
+            print("\nAvailable options:")
+
+            for i, option in enumerate(obs["select"]["option"]):
+                print(
+                    i,
+                    option
+                )
+
+            raise e
 
 
         result = obs["current"]["result"]
