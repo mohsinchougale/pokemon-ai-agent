@@ -103,7 +103,7 @@ The system now builds structured Pokémon evolution chains.
 
 Example:
 
-```
+```text
 Froakie
    |
 Frogadier
@@ -120,7 +120,7 @@ Current capabilities:
 
 Current database:
 
-```
+```text
 336 evolution lines discovered
 ```
 
@@ -130,7 +130,7 @@ This allows future deck generation algorithms to reason about playable Pokémon 
 
 # Deck Generation & Evaluation
 
-Implemented a complete deck analysis framework.
+Implemented a complete deck construction and evaluation framework.
 
 ## Deck Generation
 
@@ -139,6 +139,39 @@ Current capabilities:
 - ✅ Random 60-card deck generation
 - ✅ Card database integration
 - ✅ Valid deck construction
+- ✅ Strategy-based Pokémon selection
+- ✅ Evolution-aware deck building
+- ✅ Trainer selection
+- ✅ Energy allocation
+- ✅ Complete archetype generation
+
+Implemented deck archetypes:
+
+### Evolution Heavy
+
+Focuses on:
+
+- multiple evolution cores
+- Stage 2 attackers
+- evolution consistency
+
+### Balanced
+
+Combines:
+
+- strong evolution lines
+- standalone attackers
+- consistency-focused trainers
+
+### Aggressive EX
+
+Focuses on:
+
+- high-damage Pokémon ex
+- strong standalone attackers
+- fast offensive pressure
+
+---
 
 ## Deck Evaluation
 
@@ -237,7 +270,6 @@ Pokemon TCG AI Agent
 
 # Project Roadmap
 
-
 ## Phase 1 — Baseline Agents ✅
 
 Completed:
@@ -245,7 +277,6 @@ Completed:
 - Random agent
 - Heuristic agent
 - Strategic rule-based agent
-
 
 ---
 
@@ -261,32 +292,27 @@ Completed:
 - Evolution database
 - Deck evaluation framework
 
-
 ---
 
-# Phase 3 — Constraint-Based Deck Generation 🚧
+# Phase 3 — Constraint-Based Deck Generation ✅
 
-Current focus.
-
-Goal:
-
-Move from random decks to strategically meaningful decks.
-
-Planned:
+Completed:
 
 - Evolution-core based Pokémon selection
 - Constraint-based deck construction
 - Balanced Pokémon / Trainer / Energy ratios
-- Avoid orphan evolutions
-- Synergistic card selection
-- Automated deck scoring
+- Orphan evolution prevention
+- Strategy-based deck archetypes
+- Automated deck validation
+- Energy requirement analysis
 
+The system can now generate complete legal 60-card decks.
 
 Example:
 
 Instead of:
 
-```
+```text
 Random Pokémon:
 - Greninja ex
 - Charizard
@@ -296,14 +322,14 @@ Random Pokémon:
 
 Generate:
 
-```
+```text
 Evolution Core:
 
-Froakie
+Tepig
    |
-Frogadier
+Pignite
    |
-Greninja ex
+Mega Emboar ex
 
 
 +
@@ -314,10 +340,9 @@ Required energy package
 Consistency cards
 ```
 
-
 ---
 
-# Phase 4 — Deck Optimization
+# Phase 4 — Deck Optimization 🚧
 
 Planned:
 
@@ -326,7 +351,7 @@ Planned:
 - Crossover strategies
 - Self-play based deck improvement
 - Automated competitive deck discovery
-
+- Deck scoring optimization
 
 ---
 
@@ -339,7 +364,6 @@ Planned:
 - Imitation learning
 - Reinforcement learning through self-play
 - Learned policy networks
-
 
 ---
 
@@ -355,13 +379,33 @@ src/
 │
 ├── cards/
 │   ├── card_database.py
-│   ├── card_features.py
+│   └── card_features.py
+│
+├── deckbuilding/
 │   ├── deck.py
 │   ├── deck_generator.py
-│   ├── deck_evaluator.py
-│   ├── evolution.py
-│   ├── evolution_builder.py
-│   └── evolution_database.py
+│   ├── deck_validator.py
+│   │
+│   ├── archetypes/
+│   │   ├── evolution_heavy.py
+│   │   ├── balanced.py
+│   │   └── aggressive_ex.py
+│   │
+│   ├── pokemon/
+│   │   ├── pool.py
+│   │   ├── selector.py
+│   │   ├── scoring.py
+│   │   ├── evolution.py
+│   │   ├── evolution_builder.py
+│   │   └── evolution_database.py
+│   │
+│   ├── trainers/
+│   │   ├── pool.py
+│   │   ├── selector.py
+│   │   └── features.py
+│   │
+│   └── energy/
+│       └── selector.py
 │
 ├── environment/
 │   └── ptcg_env.py

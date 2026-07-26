@@ -65,6 +65,31 @@ class CardDatabase:
 
         return card
 
+    def get_basic_energy_id(self, energy_type):
+        """
+        Return basic energy card ID for an energy type.
+
+        Example:
+            Fire -> 2
+            Water -> 3
+        """
+
+        mapping = {
+
+            "Grass": 1,
+            "Fire": 2,
+            "Water": 3,
+            "Lightning": 4,
+            "Psychic": 5,
+            "Fighting": 6,
+            "Darkness": 7,
+            "Metal": 8
+
+        }
+
+        return mapping.get(energy_type)
+
+
     def _get_value(
         self,
         card_id: int,

@@ -1,7 +1,7 @@
 from cards.card_database import CardDatabase
 from cards.card_features import CardFeatureExtractor
-from cards.deck_generator import DeckGenerator
-from cards.evolution import EvolutionAnalyzer
+from deckbuilding.deck_generator import DeckGenerator
+from deckbuilding.pokemon.evolution import EvolutionAnalyzer
 
 
 path = (

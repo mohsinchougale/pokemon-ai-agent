@@ -1,6 +1,6 @@
 from cards.card_database import CardDatabase
 from cards.card_features import CardFeatureExtractor
-from cards.evolution_database import EvolutionLineDatabase
+from deckbuilding.pokemon.evolution_database import EvolutionLineDatabase
 
 
 path = (

@@ -1,8 +1,8 @@
 from cards.card_database import CardDatabase
 from cards.card_features import CardFeatureExtractor
-from cards.deck_generator import DeckGenerator
-from cards.deck_evaluator import DeckEvaluator
-from cards.evolution import EvolutionAnalyzer
+from deckbuilding.deck_generator import DeckGenerator
+from deckbuilding.deck_evaluator import DeckEvaluator
+from deckbuilding.pokemon.evolution import EvolutionAnalyzer
 
 path = (
     "data/raw/kaggle/"

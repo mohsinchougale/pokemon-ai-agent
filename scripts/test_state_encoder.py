@@ -3,7 +3,7 @@ import sys
 sys.path.append("src")
 
 from agent.random_agent import RandomAgent
-from cards.deck import load_deck
+from deckbuilding.deck import load_deck
 from environment.ptcg_env import PTCGEnvironment
 from features.state_encoder import encode_state
 

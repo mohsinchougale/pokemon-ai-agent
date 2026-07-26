@@ -1,6 +1,6 @@
 from collections import defaultdict
 
-from cards.evolution_lines import EvolutionLine
+from deckbuilding.pokemon.evolution_lines import EvolutionLine
 
 
 class EvolutionLineBuilder:

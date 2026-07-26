@@ -5,7 +5,7 @@ from environment.ptcg_env import PTCGEnvironment
 from agent.random_agent import RandomAgent
 from agent.heuristic_agent import HeuristicAgent
 from agent.strategic_agent import StrategicAgent
-from cards.deck import load_deck
+from deckbuilding.deck import load_deck
 from evaluation.battle_stats import BattleStats
 
 

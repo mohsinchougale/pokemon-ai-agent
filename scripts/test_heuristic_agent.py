@@ -4,7 +4,7 @@ sys.path.append("src")
 from environment.ptcg_env import PTCGEnvironment
 from agent.random_agent import RandomAgent
 from agent.heuristic_agent import HeuristicAgent
-from cards.deck import load_deck
+from deckbuilding.deck import load_deck
 
 # deck = [
 #     1158,
