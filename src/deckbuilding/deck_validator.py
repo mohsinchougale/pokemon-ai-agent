@@ -8,8 +8,9 @@ class DeckValidator:
     Checks:
     - Exactly 60 cards
     - Copy limits
+    - Basic Pokémon requirement
     - Evolution legality
-    - At least one Basic Pokémon
+    - Energy requirements
     """
 
 
@@ -62,7 +63,8 @@ class DeckValidator:
 
         for card_id, count in counts.items():
 
-            if self.db.is_energy(card_id):
+            # Basic Energy can exceed 4 copies
+            if self.db.is_basic_energy(card_id):
                 continue
 
 
@@ -82,13 +84,10 @@ class DeckValidator:
 
     def validate_basic_pokemon(self, deck):
 
-        basics = 0
-
-
-        for card_id in deck.cards:
-
-            if self.db.is_basic_pokemon(card_id):
-                basics += 1
+        basics = sum(
+            self.db.is_basic_pokemon(card_id)
+            for card_id in deck.cards
+        )
 
 
         if basics == 0:
@@ -111,7 +110,9 @@ class DeckValidator:
 
         for card_id in deck.cards:
 
-            if self.db.is_basic_pokemon(card_id):
+
+            # Stage 1 requires previous stage
+            if self.db.is_stage1_pokemon(card_id):
 
                 if not self._has_previous_stage(
                     card_id,
@@ -119,7 +120,7 @@ class DeckValidator:
                 ):
 
                     print(
-                        "Missing evolution for:",
+                        "Missing Basic Pokémon for:",
                         self.db.get_name(card_id)
                     )
 
@@ -127,6 +128,7 @@ class DeckValidator:
 
 
 
+            # Stage 2 requires Stage 1
             if self.db.is_stage2_pokemon(card_id):
 
                 if not self._has_previous_stage(
@@ -144,37 +146,46 @@ class DeckValidator:
 
         return True
 
+
+
     def validate_energy(self, deck):
 
         energy_types = set()
+
 
         for card_id in deck.cards:
 
             if self.db.is_basic_energy(card_id):
 
-                energy = self.db.get_basic_energy_type(
+                energy = self._get_energy_type(
                     card_id
                 )
 
-                if energy is not None:
+
+                if energy:
 
                     energy_types.add(
                         energy
                     )
 
+
         required = set()
+
 
         for card_id in deck.cards:
 
             if not self.db.is_pokemon(card_id):
                 continue
 
+
             for attack in self.db.get_attacks(card_id):
 
                 cost = attack["cost"]
 
+
                 if cost is None:
                     continue
+
 
                 for energy in self._parse_energy_cost(cost):
 
@@ -182,7 +193,9 @@ class DeckValidator:
                         energy
                     )
 
+
         missing = required - energy_types
+
 
         if missing:
 
@@ -193,7 +206,42 @@ class DeckValidator:
 
             return False
 
+
         return True
+
+
+
+    def _get_energy_type(self, card_id):
+
+        name = self.db.get_name(
+            card_id
+        )
+
+
+        mapping = {
+
+            "{G}": "Grass",
+            "{R}": "Fire",
+            "{W}": "Water",
+            "{L}": "Lightning",
+            "{P}": "Psychic",
+            "{F}": "Fighting",
+            "{D}": "Darkness",
+            "{M}": "Metal"
+
+        }
+
+
+        for symbol, energy in mapping.items():
+
+            if symbol in name:
+
+                return energy
+
+
+        return None
+
+
 
     def _has_previous_stage(
         self,
@@ -213,17 +261,14 @@ class DeckValidator:
 
         for existing_id in counts:
 
-            name = self.db.get_name(
-                existing_id
-            )
-
-
-            if name == previous:
+            if self.db.get_name(existing_id) == previous:
 
                 return True
 
 
         return False
+
+
 
     def _parse_energy_cost(self, cost):
 
@@ -240,9 +285,12 @@ class DeckValidator:
 
         }
 
+
         result = []
 
+
         text = str(cost)
+
 
         for symbol, energy in mapping.items():
 
@@ -252,6 +300,5 @@ class DeckValidator:
                     energy
                 )
 
-        return result
 
-    
+        return result

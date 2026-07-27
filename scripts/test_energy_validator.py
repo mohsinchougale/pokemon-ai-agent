@@ -2,124 +2,127 @@ from cards.card_database import CardDatabase
 from deckbuilding.deck import Deck
 from deckbuilding.deck_validator import DeckValidator
 
+
 CSV = "data/raw/kaggle/pokemon-tcg-ai-battle/EN_Card_Data.csv"
 
 
-def get_card_id(db, name):
-    for card_id in db.cards.index:
-        if db.get_name(card_id) == name:
-            return card_id
-    raise ValueError(f"Card not found: {name}")
+ROARING_MOON = 61
+GOUGING_FIRE = 46
+RAGING_BOLT = 171
 
 
-def build_deck(pokemon_ids, energy_ids):
+DARKNESS = 7
+FIRE = 2
+LIGHTNING = 4
+FIGHTING = 6
+GRASS = 1
+
+
+
+def build_deck(main_cards, energies):
+
     cards = []
 
-    cards.extend(pokemon_ids)
+    cards.extend(main_cards)
 
-    # Fill trainer slots with Item cards
-    trainer_count = 30
-    added = 0
+    cards.extend(energies)
 
-    for card_id in db.cards.index:
-        if db.is_trainer(card_id):
-            cards.append(card_id)
-            added += 1
-            if added == trainer_count:
-                break
 
-    cards.extend(energy_ids)
-
+    # Fill remaining slots with Basic Energy.
+    # Basic Energy has unlimited copies.
     while len(cards) < 60:
-        cards.append(energy_ids[0])
-
-    return Deck(cards[:60])
+        cards.append(GRASS)
 
 
-db = CardDatabase(CSV)
-validator = DeckValidator(db)
+    return Deck(cards)
 
 
-print("=" * 60)
-print("TEST 1 - Roaring Moon + Darkness Energy")
-print("=" * 60)
 
-roaring_moon = get_card_id(db, "Roaring Moon")
-dark_energy = db.get_basic_energy_id("Darkness")
+def test(
+    name,
+    deck,
+    expected,
+    validator
+):
 
-deck = build_deck(
-    [roaring_moon] * 15,
-    [dark_energy] * 15
-)
+    print("=" * 60)
+    print(name)
+    print("=" * 60)
 
-print("Expected: True")
-print("Actual  :", validator.validate(deck))
+    result = validator.validate(deck)
 
+    print("Expected:", expected)
+    print("Actual  :", result)
 
-print()
-print("=" * 60)
-print("TEST 2 - Roaring Moon + Fire Energy")
-print("=" * 60)
-
-fire_energy = db.get_basic_energy_id("Fire")
-
-deck = build_deck(
-    [roaring_moon] * 15,
-    [fire_energy] * 15
-)
-
-print("Expected: False")
-print("Actual  :", validator.validate(deck))
+    print()
 
 
-print()
-print("=" * 60)
-print("TEST 3 - Gouging Fire ex + Fire Energy")
-print("=" * 60)
 
-gouging_fire = get_card_id(db, "Gouging Fire ex")
+def main():
 
-deck = build_deck(
-    [gouging_fire] * 15,
-    [fire_energy] * 15
-)
+    db = CardDatabase(CSV)
 
-print("Expected: True")
-print("Actual  :", validator.validate(deck))
+    validator = DeckValidator(db)
 
 
-print()
-print("=" * 60)
-print("TEST 4 - Raging Bolt + Lightning/Fighting")
-print("=" * 60)
-
-raging_bolt = get_card_id(db, "Raging Bolt")
-
-lightning = db.get_basic_energy_id("Lightning")
-fighting = db.get_basic_energy_id("Fighting")
-
-energy = [lightning] * 8 + [fighting] * 7
-
-deck = build_deck(
-    [raging_bolt] * 15,
-    energy
-)
-
-print("Expected: True")
-print("Actual  :", validator.validate(deck))
+    test(
+        "Roaring Moon + Darkness Energy",
+        build_deck(
+            [ROARING_MOON],
+            [DARKNESS]
+        ),
+        True,
+        validator
+    )
 
 
-print()
-print("=" * 60)
-print("TEST 5 - Raging Bolt + Lightning Only")
-print("=" * 60)
+    test(
+        "Roaring Moon + Fire Energy",
+        build_deck(
+            [ROARING_MOON],
+            [FIRE]
+        ),
+        False,
+        validator
+    )
 
-energy = [lightning] * 15
 
-deck = build_deck(
-    [raging_bolt] * 15,
-    energy
-)
+    test(
+        "Gouging Fire ex + Fire Energy",
+        build_deck(
+            [GOUGING_FIRE],
+            [FIRE]
+        ),
+        True,
+        validator
+    )
 
-print("Expected: False")
-print("Actual  :", validator.validate(deck))
+
+    test(
+        "Raging Bolt + Lightning + Fighting",
+        build_deck(
+            [RAGING_BOLT],
+            [
+                LIGHTNING,
+                FIGHTING
+            ]
+        ),
+        True,
+        validator
+    )
+
+
+    test(
+        "Raging Bolt + Lightning Only",
+        build_deck(
+            [RAGING_BOLT],
+            [LIGHTNING]
+        ),
+        False,
+        validator
+    )
+
+
+
+if __name__ == "__main__":
+    main()
