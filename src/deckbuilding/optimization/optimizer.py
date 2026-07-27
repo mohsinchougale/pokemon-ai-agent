@@ -6,10 +6,11 @@ class DeckOptimizer:
     Improves a deck through iterative mutation.
 
     Process:
-    - Generate initial deck
+    - Generate starting deck
     - Mutate current deck
     - Keep improvements
     - Track optimization progress
+    - Record mutation history
     - Return best deck discovered
     """
 
@@ -55,12 +56,15 @@ class DeckOptimizer:
 
         improvements = 0
 
+
         history = [
             {
                 "iteration": 0,
-                "score": best_score
+                "score": best_score,
+                "mutation": None
             }
         ]
+
 
 
         # -----------------------------
@@ -74,9 +78,16 @@ class DeckOptimizer:
             )
 
 
+            mutation_info = (
+                self.mutator.last_mutation
+            )
+
+
             # Invalid deck
             if not self.validator.validate(candidate):
+
                 continue
+
 
 
             score = (
@@ -85,7 +96,9 @@ class DeckOptimizer:
             )
 
 
-            # Accept improvement
+
+            # Accept local improvement
+
             if score >= current_score:
 
                 current = candidate
@@ -94,19 +107,56 @@ class DeckOptimizer:
 
 
             # New global best
+
             if score > best_score:
+
+                old_score = best_score
 
                 best_deck = candidate
                 best_score = score
 
                 improvements += 1
 
+
                 history.append(
                     {
                         "iteration": i + 1,
-                        "score": best_score
+                        "score": best_score,
+                        "mutation": mutation_info
                     }
                 )
+
+
+                print("\nNEW BEST FOUND")
+                print("----------------")
+                print(
+                    f"Iteration: {i + 1}"
+                )
+
+                print(
+                    f"Score: {old_score} -> {best_score}"
+                )
+
+
+                if mutation_info:
+
+                    print(
+                        "Mutation:"
+                    )
+
+                    print(
+                        f"Type: {mutation_info['type']}"
+                    )
+
+                    print(
+                        f"Removed: "
+                        f"{self.mutator.db.get_name(mutation_info['removed'])}"
+                    )
+
+                    print(
+                        f"Added: "
+                        f"{self.mutator.db.get_name(mutation_info['added'])}"
+                    )
 
 
 
@@ -117,6 +167,7 @@ class DeckOptimizer:
                     f"{i}/{iterations} "
                     f"best={best_score}"
                 )
+
 
 
         return {

@@ -51,17 +51,17 @@ class DeckEvaluator:
             
 
             "basic_pokemon": sum(
-                f.stage == "Basic Pokémon"
+                self.extractor.db.is_basic_pokemon(f.card_id)
                 for f in pokemon
             ),
 
             "stage1_pokemon": sum(
-                f.stage == "Stage 1 Pokémon"
+                self.extractor.db.is_stage1_pokemon(f.card_id)
                 for f in pokemon
             ),
 
             "stage2_pokemon": sum(
-                f.stage == "Stage 2 Pokémon"
+                self.extractor.db.is_stage2_pokemon(f.card_id)
                 for f in pokemon
             ),
 

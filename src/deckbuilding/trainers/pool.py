@@ -23,21 +23,13 @@ class TrainerPool:
 
         for card_id in self.db.cards.index:
 
-            stage = self.db.get_stage(card_id)
-
-
-            if stage not in [
-                "Item",
-                "Supporter",
-                "Stadium",
-                "Pokémon Tool"
-            ]:
-                continue
-
-
             feature = self.extractor.extract(
                 card_id
             )
+
+
+            if feature is None:
+                continue
 
 
             self.all_trainers.append(

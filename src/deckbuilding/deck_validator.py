@@ -29,7 +29,9 @@ class DeckValidator:
 
             self.validate_basic_pokemon(deck),
 
-            self.validate_evolutions(deck)
+            self.validate_evolutions(deck),
+
+            self.validate_energy(deck)
 
         ]
 
@@ -60,12 +62,7 @@ class DeckValidator:
 
         for card_id, count in counts.items():
 
-            stage = self.db.get_stage(card_id)
-
-
-            # Energy has unlimited copies
-            if "Energy" in str(stage):
-
+            if self.db.is_energy(card_id):
                 continue
 
 
@@ -90,11 +87,7 @@ class DeckValidator:
 
         for card_id in deck.cards:
 
-            stage = self.db.get_stage(card_id)
-
-
-            if stage == "Basic Pokémon":
-
+            if self.db.is_basic_pokemon(card_id):
                 basics += 1
 
 
@@ -118,10 +111,7 @@ class DeckValidator:
 
         for card_id in deck.cards:
 
-            stage = self.db.get_stage(card_id)
-
-
-            if stage == "Stage 1":
+            if self.db.is_basic_pokemon(card_id):
 
                 if not self._has_previous_stage(
                     card_id,
@@ -137,7 +127,7 @@ class DeckValidator:
 
 
 
-            if stage == "Stage 2":
+            if self.db.is_stage2_pokemon(card_id):
 
                 if not self._has_previous_stage(
                     card_id,
@@ -154,7 +144,56 @@ class DeckValidator:
 
         return True
 
+    def validate_energy(self, deck):
 
+        energy_types = set()
+
+        for card_id in deck.cards:
+
+            if self.db.is_basic_energy(card_id):
+
+                energy = self.db.get_basic_energy_type(
+                    card_id
+                )
+
+                if energy is not None:
+
+                    energy_types.add(
+                        energy
+                    )
+
+        required = set()
+
+        for card_id in deck.cards:
+
+            if not self.db.is_pokemon(card_id):
+                continue
+
+            for attack in self.db.get_attacks(card_id):
+
+                cost = attack["cost"]
+
+                if cost is None:
+                    continue
+
+                for energy in self._parse_energy_cost(cost):
+
+                    required.add(
+                        energy
+                    )
+
+        missing = required - energy_types
+
+        if missing:
+
+            print(
+                "Missing required energy:",
+                missing
+            )
+
+            return False
+
+        return True
 
     def _has_previous_stage(
         self,
@@ -185,3 +224,34 @@ class DeckValidator:
 
 
         return False
+
+    def _parse_energy_cost(self, cost):
+
+        mapping = {
+
+            "G": "Grass",
+            "R": "Fire",
+            "W": "Water",
+            "L": "Lightning",
+            "P": "Psychic",
+            "F": "Fighting",
+            "D": "Darkness",
+            "M": "Metal"
+
+        }
+
+        result = []
+
+        text = str(cost)
+
+        for symbol, energy in mapping.items():
+
+            if f"{{{symbol}}}" in text:
+
+                result.append(
+                    energy
+                )
+
+        return result
+
+    

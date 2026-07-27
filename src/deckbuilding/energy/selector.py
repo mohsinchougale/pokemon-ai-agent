@@ -1,10 +1,25 @@
 from collections import Counter
+import re
 
 
 class EnergySelector:
     """
     Selects basic energy cards based on Pokémon attack requirements.
     """
+
+
+    ENERGY_SYMBOLS = {
+
+        "G": "Grass",
+        "R": "Fire",
+        "W": "Water",
+        "L": "Lightning",
+        "P": "Psychic",
+        "F": "Fighting",
+        "D": "Darkness",
+        "M": "Metal"
+
+    }
 
 
     def __init__(self, card_database):
@@ -29,10 +44,7 @@ class EnergySelector:
 
             for attack in attacks:
 
-                cost = attack["cost"]
-
-                if cost is None:
-                    continue
+                cost = attack.get("cost")
 
 
                 for energy in self._parse_cost(cost):
@@ -57,30 +69,32 @@ class EnergySelector:
 
     def _parse_cost(self, cost):
 
-        mapping = {
+        if cost is None:
+            return []
 
-            "G": "Grass",
-            "R": "Fire",
-            "W": "Water",
-            "L": "Lightning",
-            "P": "Psychic",
-            "F": "Fighting",
-            "D": "Darkness",
-            "M": "Metal",
-            "C": "Colorless"
 
-        }
+        cost = str(cost)
+
+
+        if cost.lower() == "no cost":
+            return []
+
+
+        symbols = re.findall(
+            r"\{(.*?)\}",
+            cost
+        )
 
 
         energies = []
 
 
-        for symbol in str(cost):
+        for symbol in symbols:
 
-            if symbol in mapping:
+            if symbol in self.ENERGY_SYMBOLS:
 
                 energies.append(
-                    mapping[symbol]
+                    self.ENERGY_SYMBOLS[symbol]
                 )
 
 
@@ -94,36 +108,70 @@ class EnergySelector:
         count
     ):
 
-        selected = []
-
+        allocations = {}
 
         total = sum(
             requirements.values()
         )
 
 
+        # Initial allocation
         for energy, value in requirements.items():
 
-            copies = round(
+            exact = (
                 value / total * count
             )
 
+            allocations[energy] = {
+                "base": int(exact),
+                "remainder": exact - int(exact)
+            }
+
+
+        selected = []
+
+
+        # Add guaranteed copies
+        for energy, data in allocations.items():
 
             selected.extend(
-                [
+                [energy] * data["base"]
+            )
+
+
+        remaining = (
+            count - len(selected)
+        )
+
+
+        # Give leftovers to highest fractional remainder
+        if remaining > 0:
+
+            priority = sorted(
+                allocations.items(),
+                key=lambda x: x[1]["remainder"],
+                reverse=True
+            )
+
+
+            index = 0
+
+            while remaining > 0:
+
+                energy = priority[index][0]
+
+                selected.append(
                     energy
-                ] * copies
-            )
+                )
+
+                remaining -= 1
+
+                index += 1
 
 
-        while len(selected) < count:
+                if index == len(priority):
+                    index = 0
 
-            selected.append(
-                requirements.most_common(1)[0][0]
-            )
-
-
-        selected = selected[:count]
 
 
         return [
@@ -137,6 +185,9 @@ class EnergySelector:
 
     def _default_energy(self, count):
 
+        # Fire as fallback
         return [
-            1
+            self.db.get_basic_energy_id(
+                "Fire"
+            )
         ] * count

@@ -1,6 +1,3 @@
-from collections import defaultdict
-
-
 class EvolutionAnalyzer:
 
     def analyze(self, pokemon_features):
@@ -35,12 +32,12 @@ class EvolutionAnalyzer:
 
             if previous in names:
 
-                if pokemon.stage == "Stage 1 Pokémon":
+                if pokemon.is_stage1_pokemon:
                     result["supported_stage1"] += 1
                     result["evolution_lines"] += 1
 
 
-                elif pokemon.stage == "Stage 2 Pokémon":
+                elif pokemon.is_stage2_pokemon:
                     result["supported_stage2"] += 1
                     result["evolution_lines"] += 1
 
@@ -49,10 +46,10 @@ class EvolutionAnalyzer:
 
                 result["orphan_evolutions"] += 1
 
-                if pokemon.stage == "Stage 1 Pokémon":
+                if pokemon.is_stage1_pokemon:
                     result["orphan_stage1"] += 1
 
-                elif pokemon.stage == "Stage 2 Pokémon":
+                elif pokemon.is_stage2_pokemon:
                     result["orphan_stage2"] += 1
 
 

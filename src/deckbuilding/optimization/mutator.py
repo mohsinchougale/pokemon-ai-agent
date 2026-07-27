@@ -6,12 +6,12 @@ from deckbuilding.deck import Deck
 
 class DeckMutator:
     """
-    Performs small mutations on a deck while trying to keep it legal.
+    Performs intelligent deck mutations.
 
-    Initial mutations:
-    - Replace one Trainer card
-    - Replace one Energy card
-    - Replace one Pokémon card
+    Mutation strategy:
+    - Favor trainer optimization
+    - Protect evolution cores
+    - Track mutation history
     """
 
     def __init__(self, card_database):
@@ -22,98 +22,190 @@ class DeckMutator:
         self.energy_pool = []
         self.pokemon_pool = []
 
+        self.last_mutation = None
+
         self._categorize()
+
 
 
     def _categorize(self):
 
         for card_id in self.db.cards.index:
 
-            stage = self.db.get_stage(card_id)
-
-            if stage in ["Basic Energy", "Special Energy"]:
+            if self.db.is_energy(card_id):
 
                 self.energy_pool.append(card_id)
 
-            elif stage in ["Item", "Supporter", "Stadium", "Pokémon Tool"]:
+
+            elif self.db.is_trainer(card_id):
 
                 self.trainer_pool.append(card_id)
 
-            elif "Pokémon" in str(stage):
+
+            elif self.db.is_pokemon(card_id):
 
                 self.pokemon_pool.append(card_id)
+
 
 
     def mutate(self, deck):
 
         cards = deck.cards.copy()
 
-        mutation = random.choice(
+
+        mutation = random.choices(
             [
                 "trainer",
-                "energy",
-                "pokemon"
+                "pokemon",
+                "energy"
+            ],
+            weights=[
+                0.6,
+                0.3,
+                0.1
             ]
-        )
+        )[0]
+
+
+        self.last_mutation = None
+
 
         if mutation == "trainer":
 
-            self._replace(cards, self.trainer_pool, self._is_trainer)
+            self._replace(
+                cards,
+                self.trainer_pool,
+                self.db.is_trainer,
+                "trainer"
+            )
 
-        elif mutation == "energy":
 
-            self._replace(cards, self.energy_pool, self._is_energy)
+        elif mutation == "pokemon":
+
+            self._replace(
+                cards,
+                self.pokemon_pool,
+                self.db.is_pokemon,
+                "pokemon"
+            )
+
 
         else:
 
-            self._replace(cards, self.pokemon_pool, self._is_pokemon)
+            self._replace(
+                cards,
+                self.energy_pool,
+                self.db.is_energy,
+                "energy"
+            )
+
 
         return Deck(cards)
 
 
-    def _replace(self, cards, pool, predicate):
+
+    def _replace(
+        self,
+        cards,
+        pool,
+        predicate,
+        mutation_type
+    ):
 
         indices = [
-            i for i, c in enumerate(cards)
+            i
+            for i, c in enumerate(cards)
             if predicate(c)
         ]
 
-        if not indices:
 
+        if not indices:
             return
 
-        idx = random.choice(indices)
+
+        random.shuffle(indices)
 
         counts = Counter(cards)
 
-        for _ in range(50):
 
-            candidate = random.choice(pool)
+        for idx in indices:
 
-            stage = self.db.get_stage(candidate)
-
-            limit = 1 if "ACE SPEC" in str(stage) else 4
-
-            if counts[candidate] < limit:
-
-                cards[idx] = candidate
-                return
+            old_card = cards[idx]
 
 
-    def _is_trainer(self, card_id):
+            if mutation_type == "pokemon":
 
-        stage = self.db.get_stage(card_id)
-
-        return stage in ["Item", "Supporter", "Stadium", "Pokémon Tool"]
-
-
-    def _is_energy(self, card_id):
-
-        stage = self.db.get_stage(card_id)
-
-        return stage in ["Basic Energy", "Special Energy"]
+                if self._is_evolution_piece(
+                    old_card,
+                    cards
+                ):
+                    continue
 
 
-    def _is_pokemon(self, card_id):
 
-        return "Pokémon" in str(self.db.get_stage(card_id))
+            for _ in range(100):
+
+                candidate = random.choice(pool)
+
+
+                limit = (
+                    1
+                    if self.db.is_ace_spec(candidate)
+                    else 4
+                )
+
+
+                if counts[candidate] < limit:
+
+                    cards[idx] = candidate
+
+
+                    self.last_mutation = {
+
+                        "type": mutation_type,
+
+                        "removed": old_card,
+
+                        "added": candidate
+
+                    }
+
+
+                    return
+
+
+
+
+    def _is_evolution_piece(
+        self,
+        card_id,
+        cards
+    ):
+
+        """
+        Prevent removal of cards
+        that are part of an evolution chain.
+        """
+
+
+        name = self.db.get_name(card_id)
+
+
+        for other in cards:
+
+            if other == card_id:
+                continue
+
+
+            other_name = self.db.get_name(other)
+
+
+            if (
+                name in str(other_name)
+                or other_name in str(name)
+            ):
+
+                return True
+
+
+        return False

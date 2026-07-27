@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-
+import pandas as pd
 
 @dataclass
 class TrainerFeatures:
@@ -19,6 +19,8 @@ class TrainerFeatures:
     is_disruption: bool
     is_energy_acceleration: bool
 
+    is_trainer: bool
+
 
 
 class TrainerFeatureExtractor:
@@ -32,12 +34,20 @@ class TrainerFeatureExtractor:
 
     def extract(self, card_id):
 
+        if not self.db.is_trainer(card_id):
+            return None
+
+
         name = str(
             self.db.get_name(card_id)
         )
 
-        category = str(
-            self.db.get_category(card_id)
+        category_value = self.db.get_category(card_id)
+
+        category = (
+            ""
+            if category_value is None or pd.isna(category_value)
+            else str(category_value)
         )
 
         card = self.db.get_card(card_id)
@@ -54,8 +64,12 @@ class TrainerFeatureExtractor:
                 )
 
 
-        rule = str(
-            self.db.get_rule(card_id)
+        rule_value = self.db.get_rule(card_id)
+
+        rule = (
+            ""
+            if rule_value is None or pd.isna(rule_value)
+            else str(rule_value)
         )
 
 
@@ -86,7 +100,7 @@ class TrainerFeatureExtractor:
                 text,
                 [
                     "draw",
-                    "cards"
+                    "draw cards"
                 ]
             ),
 
@@ -94,9 +108,10 @@ class TrainerFeatureExtractor:
             is_search=self._contains(
                 text,
                 [
-                    "search",
+                    "search your deck",
                     "look at your deck",
-                    "put onto your bench"
+                    "choose a pokemon from your deck",
+                    "find a pokemon from your deck"
                 ]
             ),
 
@@ -137,7 +152,9 @@ class TrainerFeatureExtractor:
                     "accelerate",
                     "energy from your deck"
                 ]
-            )
+            ),
+
+            is_trainer=True
         )
 
 

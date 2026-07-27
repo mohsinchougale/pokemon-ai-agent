@@ -1,38 +1,40 @@
 from dataclasses import dataclass
 import pandas as pd
 
+
 @dataclass
 class CardFeatures:
 
     card_id: int
     name: str
 
-    # Classification
     stage: str
     category: str
     previous_stage: str
 
     is_pokemon: bool
+    is_basic_pokemon: bool
+    is_stage1_pokemon: bool
+    is_stage2_pokemon: bool
+
     is_trainer: bool
     is_energy: bool
 
-    # Pokemon stats
     hp: float
     pokemon_type: str
 
-    # Attack information
     attack_count: int
     max_damage: int
     min_attack_energy: int
 
-    # Special properties
     is_ex: bool
     has_ability: bool
 
 
+
 class CardFeatureExtractor:
     """
-    Converts raw card data into useful strategic features.
+    Converts raw card data into strategic features.
     """
 
 
@@ -44,41 +46,14 @@ class CardFeatureExtractor:
 
     def extract(self, card_id: int):
 
-        category = self.db.get_category(card_id)
-
-        stage = self.db.get_stage(card_id)
-
-
-        is_energy = (
-            stage in [
-                "Basic Energy",
-                "Special Energy"
-            ]
-        )
-
-
-        is_pokemon = (
-            stage in [
-                "Basic Pokémon",
-                "Stage 1 Pokémon",
-                "Stage 2 Pokémon"
-            ]
-        )
-
-
-        is_trainer = (
-            stage in [
-                "Item",
-                "Supporter",
-                "Stadium",
-                "Pokémon Tool"
-            ]
-        )
-
-
         attacks = self.db.get_attacks(card_id)
 
-        attack_features = self._extract_attack_features(attacks)
+        attack_features = (
+            self._extract_attack_features(attacks)
+        )
+
+
+        category = self.db.get_category(card_id)
 
 
         return CardFeatures(
@@ -87,71 +62,83 @@ class CardFeatureExtractor:
 
             name=self.db.get_name(card_id),
 
+            stage=self.db.get_stage(card_id),
+
             category=(
-                str(category)
-                if not pd.isna(category)
-                else ""
+                ""
+                if category is None or pd.isna(category)
+                else str(category)
             ),
 
-            stage=stage,
+            previous_stage=(
+                self.db.get_previous_stage(card_id)
+            ),
 
-            previous_stage=self.db.get_previous_stage(card_id),
+
+            is_pokemon=(
+                self.db.is_pokemon(card_id)
+            ),
+            
+            is_basic_pokemon=(
+                self.db.is_basic_pokemon(card_id)
+            ),
+            is_stage1_pokemon=(
+                self.db.is_stage1_pokemon(card_id)
+            ),
+            is_stage2_pokemon=(
+                self.db.is_stage2_pokemon(card_id)
+            ),
+
+            is_trainer=(
+                self.db.is_trainer(card_id)
+            ),
+
+            is_energy=(
+                self.db.is_energy(card_id)
+            ),
+
 
             hp=self._parse_number(
                 self.db.get_hp(card_id)
             ),
 
+
             pokemon_type=(
-                str(self.db.get_type(card_id))
-                if not pd.isna(self.db.get_type(card_id))
-                else ""
+                ""
+                if pd.isna(self.db.get_type(card_id))
+                else str(self.db.get_type(card_id))
             ),
 
 
-            # Attack features
-            attack_count=attack_features["attack_count"],
+            attack_count=(
+                attack_features["attack_count"]
+            ),
 
-            max_damage=attack_features["max_damage"],
+            max_damage=(
+                attack_features["max_damage"]
+            ),
 
-            min_attack_energy=attack_features["min_attack_energy"],
-
-
-            # Classification
-            is_pokemon=is_pokemon,
-
-            is_trainer=is_trainer,
-
-            is_energy=is_energy,
+            min_attack_energy=(
+                attack_features["min_attack_energy"]
+            ),
 
 
-            # Extra properties
             is_ex=self._is_ex(card_id),
 
-            has_ability=self._has_ability(attacks)
+            has_ability=(
+                self._has_ability(attacks)
+            )
         )
 
 
 
     def _parse_number(self, value):
 
-        """
-        Extract numeric values.
-
-        Example:
-            "120" -> 120
-            "20×" -> 20
-            NaN -> 0
-        """
-
-        if value is None:
-            return 0
-        
-        if pd.isna(value):
+        if value is None or pd.isna(value):
             return 0
 
 
         try:
-
             return float(value)
 
         except:
@@ -170,36 +157,28 @@ class CardFeatureExtractor:
             return float(digits) if digits else 0
 
 
-    
 
     def _count_energy(self, cost):
 
-        if cost is None:
-            return 0
-
-        if pd.isna(cost):
+        if cost is None or pd.isna(cost):
             return 0
 
 
         cost = str(cost)
 
 
-        # Normal energy symbols
-        # Example:
-        # {R}{W}{C}
         if "{" in cost:
             return cost.count("{")
 
 
-        # Generic energy symbols
-        # Example:
-        # ●●●
         return cost.count("●")
-    
+
+
 
     def _extract_attack_features(self, attacks):
 
         damages = []
+
         costs = []
 
         attack_count = 0
@@ -210,7 +189,6 @@ class CardFeatureExtractor:
             name = attack["name"]
 
 
-            # Ignore rules, abilities, tera effects
             if name.startswith("["):
                 continue
 
@@ -222,16 +200,18 @@ class CardFeatureExtractor:
                 attack["damage"]
             )
 
+
             if damage > 0:
                 damages.append(damage)
 
 
-            energy_cost = self._count_energy(
+            energy = self._count_energy(
                 attack["cost"]
             )
 
-            if energy_cost > 0:
-                costs.append(energy_cost)
+
+            if energy > 0:
+                costs.append(energy)
 
 
 
@@ -250,12 +230,16 @@ class CardFeatureExtractor:
             )
         }
 
+
+
     def _is_ex(self, card_id):
 
         rule = self.db.get_rule(card_id)
 
+
         if rule is None:
             return False
+
 
         return "ex" in str(rule).lower()
 
@@ -263,9 +247,7 @@ class CardFeatureExtractor:
 
     def _has_ability(self, attacks):
 
-        for attack in attacks:
-
-            if attack["name"].startswith("[Ability]"):
-                return True
-
-        return False
+        return any(
+            attack["name"].startswith("[Ability]")
+            for attack in attacks
+        )

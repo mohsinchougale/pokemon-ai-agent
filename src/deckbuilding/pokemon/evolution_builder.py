@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from deckbuilding.pokemon.evolution_lines import EvolutionLine
 
 
@@ -34,7 +32,7 @@ class EvolutionLineBuilder:
 
 
             # We only start from Basic Pokémon
-            if pokemon.stage != "Basic Pokémon":
+            if not pokemon.is_basic_pokemon:
                 continue
 
 
@@ -54,7 +52,7 @@ class EvolutionLineBuilder:
                     basic.name.lower()
                 ):
 
-                    if candidate.stage == "Stage 1 Pokémon":
+                    if candidate.is_stage1_pokemon:
 
                         stage1 = candidate
 

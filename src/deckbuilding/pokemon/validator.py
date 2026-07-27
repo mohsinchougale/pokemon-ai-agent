@@ -41,7 +41,7 @@ class PokemonDeckValidator:
             )
 
 
-            if feature.stage == "Stage 1 Pokémon":
+            if feature.is_stage1_pokemon:
 
                 if not self.has_basic(
                     feature.previous_stage,
@@ -57,7 +57,7 @@ class PokemonDeckValidator:
 
 
 
-            if feature.stage == "Stage 2 Pokémon":
+            if feature.is_stage2_pokemon:
 
                 if not self.has_stage1(
                     feature.previous_stage,
@@ -91,7 +91,7 @@ class PokemonDeckValidator:
             if (
                 feature.name == name
                 and
-                feature.stage == "Basic Pokémon"
+                feature.is_basic_pokemon
             ):
 
                 return True
@@ -117,7 +117,7 @@ class PokemonDeckValidator:
             if (
                 feature.name == name
                 and
-                feature.stage == "Stage 1 Pokémon"
+                feature.is_stage1_pokemon
             ):
 
                 return True

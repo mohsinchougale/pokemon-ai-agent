@@ -1,5 +1,3 @@
-from collections import defaultdict
-
 from cards.card_features import CardFeatureExtractor
 from deckbuilding.pokemon.evolution_database import EvolutionLineDatabase
 
@@ -13,12 +11,17 @@ class PokemonPool:
     def __init__(self, card_database):
 
         self.db = card_database
-        self.extractor = CardFeatureExtractor(card_database)
+
+        self.extractor = CardFeatureExtractor(
+            card_database
+        )
+
 
         self.evolution_db = EvolutionLineDatabase(
             card_database,
             self.extractor
         )
+
 
         self.all_pokemon = []
         self.basic = []
@@ -26,20 +29,28 @@ class PokemonPool:
         self.stage2 = []
         self.ex = []
 
+
         self._build()
+
 
         self.two_stage_lines = []
         self.three_stage_lines = []
 
+
         self._categorize_lines()
+
+
 
     def _categorize_lines(self):
 
         for line in self.evolution_db.lines:
 
             if line.stage2:
+
                 self.three_stage_lines.append(line)
+
             else:
+
                 self.two_stage_lines.append(line)
 
 
@@ -50,19 +61,30 @@ class PokemonPool:
 
             feature = self.extractor.extract(card_id)
 
+
             if not feature.is_pokemon:
                 continue
 
+
             self.all_pokemon.append(feature)
 
-            if feature.stage == "Basic Pokémon":
+
+            if self.db.is_basic_pokemon(card_id):
+
                 self.basic.append(feature)
 
-            elif feature.stage == "Stage 1 Pokémon":
+
+            elif self.db.is_stage1_pokemon(card_id):
+
                 self.stage1.append(feature)
 
-            elif feature.stage == "Stage 2 Pokémon":
+
+            elif self.db.is_stage2_pokemon(card_id):
+
                 self.stage2.append(feature)
 
+
+
             if feature.is_ex:
+
                 self.ex.append(feature)
