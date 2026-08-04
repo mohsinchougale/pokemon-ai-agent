@@ -8,25 +8,34 @@ class DeckValidator:
     Checks:
     - Exactly 60 cards
     - Copy limits
+    - Maximum one ACE SPEC
     - Basic Pokémon requirement
     - Evolution legality
     - Energy requirements
     """
 
 
-    def __init__(self, card_database):
+    def __init__(
+        self,
+        card_database
+    ):
 
         self.db = card_database
 
 
 
-    def validate(self, deck):
+    def validate(
+        self,
+        deck
+    ):
 
         checks = [
 
             self.validate_size(deck),
 
             self.validate_duplicates(deck),
+
+            self.validate_ace_spec(deck),
 
             self.validate_basic_pokemon(deck),
 
@@ -41,7 +50,10 @@ class DeckValidator:
 
 
 
-    def validate_size(self, deck):
+    def validate_size(
+        self,
+        deck
+    ):
 
         if len(deck) != 60:
 
@@ -56,14 +68,20 @@ class DeckValidator:
 
 
 
-    def validate_duplicates(self, deck):
+    def validate_duplicates(
+        self,
+        deck
+    ):
 
-        counts = Counter(deck.cards)
+        counts = Counter(
+            deck.cards
+        )
 
 
         for card_id, count in counts.items():
 
-            # Basic Energy can exceed 4 copies
+
+            # Basic Energy unlimited
             if self.db.is_basic_energy(card_id):
                 continue
 
@@ -72,7 +90,8 @@ class DeckValidator:
 
                 print(
                     f"Too many copies: "
-                    f"{self.db.get_name(card_id)} ({count})"
+                    f"{self.db.get_name(card_id)} "
+                    f"({count})"
                 )
 
                 return False
@@ -82,11 +101,54 @@ class DeckValidator:
 
 
 
-    def validate_basic_pokemon(self, deck):
+    def validate_ace_spec(
+        self,
+        deck
+    ):
+
+        ace_specs = [
+
+            card_id
+
+            for card_id in deck.cards
+
+            if self.db.is_ace_spec(card_id)
+
+        ]
+
+
+        if len(ace_specs) > 1:
+
+            print(
+                "Too many ACE SPEC cards:"
+            )
+
+
+            for card_id in ace_specs:
+
+                print(
+                    self.db.get_name(card_id)
+                )
+
+
+            return False
+
+
+        return True
+
+
+
+    def validate_basic_pokemon(
+        self,
+        deck
+    ):
 
         basics = sum(
+
             self.db.is_basic_pokemon(card_id)
+
             for card_id in deck.cards
+
         )
 
 
@@ -103,15 +165,19 @@ class DeckValidator:
 
 
 
-    def validate_evolutions(self, deck):
+    def validate_evolutions(
+        self,
+        deck
+    ):
 
-        counts = Counter(deck.cards)
+        counts = Counter(
+            deck.cards
+        )
 
 
         for card_id in deck.cards:
 
 
-            # Stage 1 requires previous stage
             if self.db.is_stage1_pokemon(card_id):
 
                 if not self._has_previous_stage(
@@ -128,7 +194,6 @@ class DeckValidator:
 
 
 
-            # Stage 2 requires Stage 1
             if self.db.is_stage2_pokemon(card_id):
 
                 if not self._has_previous_stage(
@@ -148,7 +213,10 @@ class DeckValidator:
 
 
 
-    def validate_energy(self, deck):
+    def validate_energy(
+        self,
+        deck
+    ):
 
         energy_types = set()
 
@@ -211,7 +279,10 @@ class DeckValidator:
 
 
 
-    def _get_energy_type(self, card_id):
+    def _get_energy_type(
+        self,
+        card_id
+    ):
 
         name = self.db.get_name(
             card_id
@@ -270,7 +341,10 @@ class DeckValidator:
 
 
 
-    def _parse_energy_cost(self, cost):
+    def _parse_energy_cost(
+        self,
+        cost
+    ):
 
         mapping = {
 

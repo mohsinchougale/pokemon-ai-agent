@@ -1,6 +1,7 @@
 from dataclasses import dataclass
 import pandas as pd
 
+
 @dataclass
 class TrainerFeatures:
 
@@ -19,6 +20,9 @@ class TrainerFeatures:
     is_disruption: bool
     is_energy_acceleration: bool
 
+    # Legality
+    is_ace_spec: bool
+
     is_trainer: bool
 
 
@@ -26,13 +30,19 @@ class TrainerFeatures:
 class TrainerFeatureExtractor:
 
 
-    def __init__(self, card_database):
+    def __init__(
+        self,
+        card_database
+    ):
 
         self.db = card_database
 
 
 
-    def extract(self, card_id):
+    def extract(
+        self,
+        card_id
+    ):
 
         if not self.db.is_trainer(card_id):
             return None
@@ -42,6 +52,7 @@ class TrainerFeatureExtractor:
             self.db.get_name(card_id)
         )
 
+
         category_value = self.db.get_category(card_id)
 
         category = (
@@ -50,7 +61,16 @@ class TrainerFeatureExtractor:
             else str(category_value)
         )
 
+
         card = self.db.get_card(card_id)
+
+        is_ace_spec = False
+
+        if card is not None:
+
+            is_ace_spec = bool(
+                card.get("ACE SPEC", False)
+            )
 
 
         effect = ""
@@ -154,16 +174,28 @@ class TrainerFeatureExtractor:
                 ]
             ),
 
+
+            is_ace_spec=(
+                "ace spec" in rule.lower()
+            ),
+
+
             is_trainer=True
         )
 
 
 
-    def _contains(self, text, keywords):
+    def _contains(
+        self,
+        text,
+        keywords
+    ):
 
         for word in keywords:
 
             if word in text:
+
                 return True
+
 
         return False

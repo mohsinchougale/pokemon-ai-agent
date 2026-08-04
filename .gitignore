@@ -7,6 +7,14 @@ __pycache__/
 *.so
 *.egg-info/
 .python-version
+*.pyc
+
+# Generated decks
+generated/
+
+# Kaggle
+submission.tar.gz
+kaggle_test/
 
 
 # macOS

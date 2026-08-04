@@ -1,4 +1,4 @@
-from engine.cg.api import (
+from cg.api import (
     OptionType,
     SelectType,
     to_observation_class,

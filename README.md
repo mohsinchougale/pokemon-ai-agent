@@ -1,25 +1,16 @@
 # Pokémon TCG AI Agent
 
-Building an autonomous Pokémon Trading Card Game AI agent for the Kaggle competition:
+An autonomous Pokémon Trading Card Game AI built for Kaggle's **The Pokémon Company – PTCG AI Battle Challenge Simulation**.
 
-**"The Pokémon Company – PTCG AI Battle Challenge Simulation."**
+This project aims to develop an intelligent battle agent capable of playing Pokémon TCG through simulation by combining:
 
-The goal of this project is to create an AI system capable of playing Pokémon TCG through simulation by combining:
+- Rule-based decision making
+- Strategic board evaluation
+- Feature engineering
+- Search and planning (future work)
+- Reinforcement learning (future work)
 
-- structured card understanding
-- rule-based decision making
-- evolution-aware deck construction
-- strategic deck evaluation
-- optimization search
-- future reinforcement learning
-
-The project has evolved from simple battle agents into a complete pipeline covering:
-
-- card intelligence
-- deck generation
-- deck validation
-- deck optimization
-- battle strategy
+The long-term objective is to evolve from handcrafted strategies to a fully learned agent trained through self-play.
 
 ---
 
@@ -27,374 +18,140 @@ The project has evolved from simple battle agents into a complete pipeline cover
 
 ## Environment & Simulation ✅
 
+Successfully integrated the official Pokémon TCG simulator provided by the competition.
+
 Completed:
 
-- Pokémon TCG simulator integration
+- Simulator integration
 - Local battle execution
-- Observation exploration
-- Agent evaluation framework
+- Observation parsing
+- Action submission
+- End-to-end Kaggle submission pipeline
+- Self-play evaluation framework
+
+The agent can now run successfully both locally and on Kaggle.
 
 ---
 
-# Agents
+# Battle Agents
 
 ## Random Agent ✅
 
-Baseline agent using random legal actions.
+Baseline agent that selects a random legal action.
 
-Used for benchmarking stronger strategies.
+Used as the primary benchmark for evaluating stronger agents.
 
 ---
 
 ## Heuristic Agent ✅
 
-Rule-based agent using:
+Rule-based agent that evaluates legal actions using handcrafted heuristics.
 
-- damage evaluation
-- survival evaluation
-- board state analysis
-- basic action scoring
+Decision factors include:
+
+- Damage evaluation
+- Survival estimation
+- Board state analysis
+- Action scoring
 
 ---
 
 ## Strategic Agent ✅
 
-Feature-driven agent using:
+A feature-driven battle agent that uses structured game-state information to make decisions.
 
-- Pokémon strength evaluation
-- attack selection
-- board value estimation
-- survival prioritization
-- strategic scoring
+Current decision process includes:
 
-Current benchmarks:
+- Board evaluation
+- Active Pokémon health analysis
+- Energy availability
+- Hand and deck resources
+- Prize tracking
+- Bench evaluation
+- Status conditions
+- Turn-state awareness
+
+The Strategic Agent serves as the current competition submission and forms the foundation for future learned policies.
+
+---
+
+# Feature Engineering
+
+A dedicated feature encoder converts raw simulator observations into structured numerical features for decision making.
+
+Current extracted features include:
+
+## Game State
+
+- Current turn
+- Turn action count
+
+## Active Pokémon
+
+- HP
+- Maximum HP
+- HP ratio
+
+for both players.
+
+## Resources
+
+- Hand size
+- Deck size
+- Remaining prize cards
+
+## Board State
+
+- Bench size
+- Attached energy count
+
+## Status Conditions
+
+- Poisoned
+- Burned
+- Asleep
+- Paralyzed
+- Confused
+
+## Turn Resources
+
+- Energy attachment availability
+- Supporter usage
+- Stadium usage
+
+These features provide a compact representation of the current game state while remaining independent of the raw simulator objects.
+
+---
+
+# Kaggle Integration
+
+The project now supports the complete Kaggle competition workflow.
+
+Completed:
+
+- Submission packaging
+- Competition-compatible project structure
+- Local validation
+- Successful agent submission
+- Replay generation
+- Simulator compatibility
+
+The first fully functional agent has been successfully submitted and evaluated on the competition leaderboard.
+
+---
+
+# Evaluation
+
+Current benchmark results:
 
 | Matchup | Win Rate |
 |---------|---------:|
 | Strategic vs Random | **81.7%** |
 | Strategic vs Heuristic | **87.7%** |
 
-(1000 self-play games per matchup)
+(1,000 self-play games per matchup)
 
----
-
-# Card Knowledge System
-
-Implemented a centralized card intelligence layer.
-
-The `CardDatabase` provides a unified interface for:
-
-- card lookup
-- card classification
-- Pokémon detection
-- trainer detection
-- energy detection
-- attack extraction
-- rule extraction
-
-Supported card categories:
-
-| Category | Status |
-|----------|--------|
-| Basic Pokémon | ✅ |
-| Stage 1 Pokémon | ✅ |
-| Stage 2 Pokémon | ✅ |
-| Item | ✅ |
-| Supporter | ✅ |
-| Stadium | ✅ |
-| Pokémon Tool | ✅ |
-| Basic Energy | ✅ |
-| Special Energy | ✅ |
-
----
-
-# Pokémon Feature System
-
-Pokémon cards are converted into structured features.
-
-Extracted information includes:
-
-- evolution stage
-- previous evolution
-- HP
-- type
-- attacks
-- attack damage
-- attack energy requirements
-- Pokémon ex detection
-- ability information
-
-This allows the deck builder and agents to reason about Pokémon strategically instead of treating cards as IDs.
-
----
-
-# Evolution Knowledge System
-
-Implemented evolution-aware reasoning.
-
-The system builds complete evolution chains.
-
-Example:
-
-\`\`\`text
-Froakie
-   │
-Frogadier
-   │
-Greninja ex
-\`\`\`
-
-Capabilities:
-
-- evolution stage detection
-- previous-stage resolution
-- evolution line construction
-- evolution database generation
-
-Current database:
-
-\`\`\`text
-336 evolution lines discovered
-\`\`\`
-
-This allows deck generation to select playable evolution cores.
-
----
-
-# Trainer Intelligence System
-
-Implemented a dedicated trainer analysis pipeline.
-
-Trainer cards are converted into strategic features.
-
-Current trainer tags:
-
-- draw support
-- search effects
-- switching effects
-- recovery effects
-- disruption effects
-- energy acceleration effects
-
-The trainer selector prioritizes consistency-focused cards before filling remaining slots.
-
-Selection priority:
-
-1. Draw support
-2. Search support
-3. Recovery
-4. Additional utility trainers
-
----
-
-# Energy Intelligence System
-
-Implemented energy-aware deck construction.
-
-The system analyzes Pokémon attack requirements and generates compatible energy packages.
-
-## Energy Cost Parsing
-
-Examples:
-
-\`\`\`text
-{G}      → Grass Energy
-
-{R}●     → Fire Energy
-
-{F}{M}   → Fighting + Metal Energy
-
-{W}{W}   → Water + Water Energy
-\`\`\`
-
-The parser handles:
-
-- basic energy symbols
-- multiple energy requirements
-- mixed colored and colorless costs
-
----
-
-## Energy Allocation
-
-The Energy Selector:
-
-- extracts attack requirements
-- counts required energy types
-- allocates energy proportionally
-- returns valid basic energy card IDs
-
-Example:
-
-\`\`\`text
-Pokémon Core:
-
-Roaring Moon
-Gouging Fire ex
-Raging Bolt
-
-Generated Energy:
-
-Darkness Energy
-Fire Energy
-Lightning Energy
-Fighting Energy
-\`\`\`
-
----
-
-# Deck Construction System
-
-Implemented modular 60-card deck generation.
-
-Pipeline:
-
-\`\`\`text
-Pokémon Selection
-        │
-        ▼
-Trainer Selection
-        │
-        ▼
-Energy Selection
-        │
-        ▼
-Deck Validation
-        │
-        ▼
-Deck Evaluation
-\`\`\`
-
-Current capabilities:
-
-- legal deck generation
-- evolution-aware Pokémon selection
-- trainer package generation
-- energy allocation
-- energy requirement validation
-- archetype-based generation
-
----
-
-# Deck Validation System
-
-Implemented legality checking.
-
-Validation includes:
-
-- deck size
-- duplicate restrictions
-- Basic Pokémon requirements
-- evolution consistency
-- energy requirements
-
-Energy validation checks that generated decks contain the required energy types needed by selected Pokémon attacks.
-
----
-
-# Deck Evaluation System
-
-Implemented feature-based deck scoring.
-
-The evaluator measures:
-
-## Composition
-
-- Pokémon count
-- Trainer count
-- Energy count
-- Basic Pokémon count
-- Stage 1 count
-- Stage 2 count
-
-## Pokémon Quality
-
-Measures:
-
-- average HP
-- average damage
-- Pokémon ex count
-- offensive potential
-
-## Evolution Consistency
-
-Analyzes:
-
-- evolution lines
-- orphan evolutions
-- supported evolution chains
-
-Example:
-
-\`\`\`text
-{
-    pokemon_count: 15,
-    trainer_count: 30,
-    energy_count: 15,
-
-    evolution_lines: 3,
-    evolution_score: 19,
-
-    deck_score: 114
-}
-\`\`\`
-
----
-
-# Deck Optimization
-
-Implemented mutation-based optimization.
-
-Optimization workflow:
-
-1. Generate initial deck
-2. Apply mutations
-3. Validate candidates
-4. Evaluate deck quality
-5. Keep improvements
-6. Track best-performing decks
-
-Current capabilities:
-
-- multi-archetype comparison
-- mutation search
-- hill-climbing improvement
-- best deck tracking
-- archetype ranking
-
----
-
-# Implemented Archetypes
-
-## Evolution Heavy
-
-Focus:
-
-- evolution cores
-- Stage 2 attackers
-- evolution consistency
-
----
-
-## Balanced
-
-Focus:
-
-- evolution lines
-- standalone attackers
-- consistency trainers
-- balanced resources
-
----
-
-## Aggressive EX
-
-Focus:
-
-- Pokémon ex
-- high HP attackers
-- high damage output
-- offensive pressure
+These benchmarks validate that the Strategic Agent consistently outperforms simpler baseline policies.
 
 ---
 
@@ -402,127 +159,72 @@ Focus:
 
 ## Phase 1 — Baseline Agents ✅
 
-Completed:
+Completed
 
-- Random agent
-- Heuristic agent
-- Strategic agent
-
----
-
-## Phase 2 — Card Understanding ✅
-
-Completed:
-
-- card database
-- feature extraction
-- attack parsing
-- evolution analysis
-- trainer analysis
-- energy analysis
+- Random Agent
+- Heuristic Agent
+- Strategic Agent
 
 ---
 
-## Phase 3 — Deck Construction ✅
+## Phase 2 — Environment Integration ✅
 
-Completed:
+Completed
 
-- Pokémon selection
-- evolution-aware generation
-- trainer selection
-- energy selection
-- validation framework
-
----
-
-## Phase 4 — Optimization ✅
-
-Completed:
-
-- mutation-based optimization
-- hill-climbing search
-- archetype comparison
-- improvement tracking
+- Simulator integration
+- Observation parsing
+- Feature extraction
+- Local battle execution
+- Kaggle submission pipeline
 
 ---
 
-## Phase 5 — Advanced AI Agents
+## Phase 3 — Strategic Improvements
 
-Planned:
+Planned
 
-- Monte Carlo Tree Search
-- rollout planning
-- hidden information reasoning
-- reinforcement learning
-- self-play training
-- learned policy/value networks
+- Better opening-game decisions
+- Improved attack selection
+- Smarter retreat logic
+- Bench management
+- Resource conservation
+- Prize-aware strategies
 
 ---
 
-# Project Structure
+## Phase 4 — Search
 
-\`\`\`text
-src/
+Planned
 
-├── agent/
-│   ├── random_agent.py
-│   ├── heuristic_agent.py
-│   └── strategic_agent.py
-│
-├── cards/
-│   ├── card_database.py
-│   └── card_features.py
-│
-├── deckbuilding/
-│   ├── deck.py
-│   ├── deck_generator.py
-│   ├── deck_validator.py
-│   ├── deck_evaluator.py
-│   │
-│   ├── archetypes/
-│   │   ├── evolution_heavy.py
-│   │   ├── balanced.py
-│   │   └── aggressive_ex.py
-│   │
-│   ├── pokemon/
-│   │   ├── pool.py
-│   │   ├── selector.py
-│   │   ├── evolution.py
-│   │   └── evolution_database.py
-│   │
-│   ├── trainers/
-│   │   ├── pool.py
-│   │   ├── selector.py
-│   │   └── features.py
-│   │
-│   ├── energy/
-│   │   └── selector.py
-│   │
-│   └── optimization/
-│       ├── optimizer.py
-│       └── search.py
-│
-├── environment/
-│   └── ptcg_env.py
-│
-├── evaluation/
-│   └── battle_stats.py
-│
-└── engine/
-    └── cg/
-\`\`\`
+- Monte Carlo Tree Search (MCTS)
+- Limited-depth planning
+- Rollout evaluation
+- Hidden-information reasoning
+
+---
+
+## Phase 5 — Machine Learning
+
+Planned
+
+- Replay collection
+- Imitation learning
+- Reinforcement learning
+- Self-play training
+- Policy networks
+- Value networks
 
 ---
 
 # Future Vision
 
-The final objective is an autonomous Pokémon TCG AI capable of:
+The ultimate goal is to build a competitive Pokémon TCG AI capable of:
 
-- understanding complex card interactions
-- discovering strong decks
-- planning multiple turns ahead
-- optimizing strategies through search
-- learning through self-play
-- combining symbolic reasoning with machine learning
+- Understanding complex board states
+- Planning multiple turns ahead
+- Adapting to hidden information
+- Learning directly from gameplay
+- Improving through self-play
+- Combining symbolic reasoning with machine learning
 
-The long-term goal is to build an end-to-end Pokémon TCG agent capable of discovering strategies and competing autonomously against advanced opponents.
+Rather than relying solely on handcrafted heuristics, the long-term vision is an autonomous agent that continually improves through experience while remaining compatible with the official Pokémon TCG simulator and Kaggle competition environment.

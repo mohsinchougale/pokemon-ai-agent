@@ -244,7 +244,39 @@ class CardDatabase:
             in self.SPECIAL_ENERGY
         )
 
+    def is_ex(self, card_id: int):
 
+        rule = self.get_rule(card_id)
+
+        if rule is None:
+            return False
+
+
+        return "ex" in str(rule).lower()
+
+    def is_item(self, card_id: int):
+
+        return (
+            self.get_stage(card_id) == "Item"
+            or
+            self.get_stage(card_id) == "Pokémon Tool"
+        )
+
+
+
+    def is_supporter(self, card_id: int):
+
+        return (
+            self.get_stage(card_id) == "Supporter"
+        )
+
+
+
+    def is_stadium(self, card_id: int):
+
+        return (
+            self.get_stage(card_id) == "Stadium"
+        )
 
     def is_pokemon(self, card_id: int):
 
@@ -380,3 +412,40 @@ class CardDatabase:
             ).strip()
     
             return mapping.get(energy)
+
+    def get_required_energy_types(self, card_id):
+
+        required = set()
+
+        attacks = self.get_attacks(card_id)
+
+        for attack in attacks:
+
+            cost = str(attack["cost"])
+
+            if "{G}" in cost:
+                required.add("Grass")
+
+            if "{R}" in cost:
+                required.add("Fire")
+
+            if "{W}" in cost:
+                required.add("Water")
+
+            if "{L}" in cost:
+                required.add("Lightning")
+
+            if "{P}" in cost:
+                required.add("Psychic")
+
+            if "{F}" in cost:
+                required.add("Fighting")
+
+            if "{D}" in cost:
+                required.add("Darkness")
+
+            if "{M}" in cost:
+                required.add("Metal")
+
+
+        return required

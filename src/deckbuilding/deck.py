@@ -22,17 +22,30 @@ class Deck:
         return Counter(self.cards)
 
 
-    def validate_duplicates(self):
+    def validate_duplicates(self, card_database):
 
         counts = self.card_counts()
 
         for card_id, count in counts.items():
 
-            # TODO:
-            # Basic Energy can exceed 4 copies.
-            # Handle this after integrating CardDatabase.
+            # Basic Energy can exceed 4 copies
+            if card_database.is_basic_energy(card_id):
+                continue
+
+
+            # ACE SPEC max 1
+            if card_database.is_ace_spec(card_id):
+
+                if count > 1:
+                    return False
+
+                continue
+
+
+            # Everything else max 4
             if count > 4:
                 return False
+
 
         return True
 

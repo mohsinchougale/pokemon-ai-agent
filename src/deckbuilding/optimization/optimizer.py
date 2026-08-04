@@ -1,17 +1,15 @@
 from deckbuilding.optimization.mutator import DeckMutator
+from deckbuilding.engine_validator import EngineDeckValidator
 
 
 class DeckOptimizer:
     """
     Improves a deck through iterative mutation.
 
-    Process:
-    - Generate starting deck
-    - Mutate current deck
-    - Keep improvements
-    - Track optimization progress
-    - Record mutation history
-    - Return best deck discovered
+    Uses beam search:
+    - Generate multiple mutations
+    - Evaluate all valid candidates
+    - Keep the strongest candidate
     """
 
     def __init__(
@@ -26,14 +24,15 @@ class DeckOptimizer:
         self.evaluator = evaluator
         self.validator = validator
 
-        self.mutator = DeckMutator(
-            card_database
-        )
+        self.engine_validator = EngineDeckValidator()
+
+        self.mutator = DeckMutator(card_database)
 
 
     def optimize(
         self,
-        iterations=100
+        iterations=100,
+        beam_width=5
     ):
 
         # -----------------------------
@@ -42,20 +41,24 @@ class DeckOptimizer:
 
         current = self.archetype.generate()
 
-        initial_score = (
-            self.evaluator
-            .evaluate(current)["deck_score"]
+        if not self.engine_validator.validate(current):
+            raise RuntimeError(
+                "Generated starting deck failed engine validation"
+            )
+
+        initial_result = self.evaluator.evaluate(
+            current,
+            battles=10
         )
 
+        initial_score = initial_result["deck_score"]
 
         current_score = initial_score
 
         best_deck = current
         best_score = current_score
 
-
         improvements = 0
-
 
         history = [
             {
@@ -65,58 +68,67 @@ class DeckOptimizer:
             }
         ]
 
-
-
         # -----------------------------
         # Optimization loop
         # -----------------------------
 
         for i in range(iterations):
 
-            candidate = self.mutator.mutate(
-                current
-            )
+            candidates = []
 
+            for _ in range(beam_width):
 
-            mutation_info = (
-                self.mutator.last_mutation
-            )
+                candidate = self.mutator.mutate(current)
 
+                mutation_info = self.mutator.last_mutation
 
-            # Invalid deck
-            if not self.validator.validate(candidate):
+                if mutation_info is None:
+                    continue
 
+                if not self.validator.validate(candidate):
+                    continue
+
+                if not self.engine_validator.validate(candidate):
+                    continue
+
+                result = self.evaluator.evaluate(
+                    candidate,
+                    battles=10
+                )
+
+                candidates.append(
+                    (
+                        result["deck_score"],
+                        candidate,
+                        mutation_info
+                    )
+                )
+
+            if not candidates:
                 continue
 
-
-
-            score = (
-                self.evaluator
-                .evaluate(candidate)["deck_score"]
+            score, candidate, mutation_info = max(
+                candidates,
+                key=lambda x: x[0]
             )
 
-
-
-            # Accept local improvement
+            # Local improvement
 
             if score >= current_score:
 
                 current = candidate
                 current_score = score
 
-
-
-            # New global best
+            # Global improvement
 
             if score > best_score:
 
                 old_score = best_score
 
-                best_deck = candidate
                 best_score = score
+                best_deck = candidate
 
                 improvements += 1
-
 
                 history.append(
                     {
@@ -125,7 +137,6 @@ class DeckOptimizer:
                         "mutation": mutation_info
                     }
                 )
-
 
                 print("\nNEW BEST FOUND")
                 print("----------------")
@@ -137,28 +148,20 @@ class DeckOptimizer:
                     f"Score: {old_score} -> {best_score}"
                 )
 
+                print("Mutation:")
+                print(
+                    f"Type: {mutation_info['type']}"
+                )
 
-                if mutation_info:
+                print(
+                    f"Removed: "
+                    f"{self.mutator.db.get_name(mutation_info['removed'])}"
+                )
 
-                    print(
-                        "Mutation:"
-                    )
-
-                    print(
-                        f"Type: {mutation_info['type']}"
-                    )
-
-                    print(
-                        f"Removed: "
-                        f"{self.mutator.db.get_name(mutation_info['removed'])}"
-                    )
-
-                    print(
-                        f"Added: "
-                        f"{self.mutator.db.get_name(mutation_info['added'])}"
-                    )
-
-
+                print(
+                    f"Added: "
+                    f"{self.mutator.db.get_name(mutation_info['added'])}"
+                )
 
             if i % 10 == 0:
 
@@ -168,19 +171,11 @@ class DeckOptimizer:
                     f"best={best_score}"
                 )
 
-
-
         return {
-
             "deck": best_deck,
-
             "initial_score": initial_score,
-
             "best_score": best_score,
-
             "improvements": improvements,
-
             "iterations": iterations,
-
             "history": history
         }

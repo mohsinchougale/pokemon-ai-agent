@@ -13,6 +13,9 @@ from deckbuilding.archetypes.aggressive_ex import AggressiveEXArchetype
 
 from deckbuilding.optimization.search import ArchetypeSearch
 
+from deckbuilding.hybrid_evaluator import HybridEvaluator
+
+from deckbuilding.io.deck_exporter import DeckExporter
 
 
 # -----------------------------------
@@ -49,18 +52,56 @@ evolution_db.build()
 
 
 # -----------------------------------
-# Evaluation
+# Static Deck Evaluation
 # -----------------------------------
 
 evolution_analyzer = EvolutionAnalyzer()
 
 
-evaluator = DeckEvaluator(
+deck_evaluator = DeckEvaluator(
     extractor,
     evolution_analyzer
 )
 
 
+
+# -----------------------------------
+# Create Opponent Deck
+# -----------------------------------
+#
+# This is the deck every candidate
+# deck will battle against.
+#
+# Later we can replace this with
+# strongest discovered deck.
+#
+
+opponent_deck = BalancedArchetype(
+    db
+).build_generator().generate()
+
+
+
+# -----------------------------------
+# Hybrid Evaluation
+# -----------------------------------
+#
+# Combines:
+#
+# 1. Static deck quality
+# 2. Actual battle win rate
+#
+
+evaluator = HybridEvaluator(
+    deck_evaluator,
+    opponent_deck
+)
+
+
+
+# -----------------------------------
+# Validator
+# -----------------------------------
 
 validator = DeckValidator(
     db
@@ -103,8 +144,16 @@ search = ArchetypeSearch(
 
 
 
+# -----------------------------------
+# Run Optimization
+# -----------------------------------
+#
+# Start small.
+# Increase after confirming it works.
+#
+
 results = search.search(
-    iterations=50
+    iterations=10
 )
 
 
@@ -120,7 +169,7 @@ print("====================")
 
 
 for rank, result in enumerate(results, start=1):
-
+    
     print("\nRank:", rank)
 
     print(
@@ -154,6 +203,22 @@ for rank, result in enumerate(results, start=1):
         len(result["deck"].cards)
     )
 
+# Export top ranked deck
+best_result = results[0]
+
+DeckExporter.export(
+    best_result["deck"],
+    "kaggle_submission/deck.csv"
+)
+print("\nFINAL BEST DECK")
+
+for card in best_result["deck"].cards:
+    print(
+        card,
+        db.get_name(card)
+    )
+    
+print("\nBest deck exported to kaggle_submission/deck.csv")
 
 print("\n====================")
 print("Optimization Complete")

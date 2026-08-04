@@ -11,46 +11,82 @@ class TrainerSelector:
 
 
     def select_trainers(self, count=30):
-
         selected = []
 
 
-        # Consistency first
+        # -----------------------------
+        # Separate ACE SPEC and normal trainers
+        # -----------------------------
+
+        ace_specs = [
+            x for x in self.pool.all_trainers
+            if x.is_ace_spec
+        ]
+
+
+        normal_trainers = [
+            x for x in self.pool.all_trainers
+            if not x.is_ace_spec
+        ]
+
+
+        # -----------------------------
+        # Pick exactly ONE ACE SPEC
+        # -----------------------------
+
+        if ace_specs:
+
+            ace = random.choice(ace_specs)
+
+            selected.append(
+                ace.card_id
+            )
+
+
+        # -----------------------------
+        # Rank normal trainers
+        # -----------------------------
+
         priority = sorted(
 
-            self.pool.all_trainers,
+            normal_trainers,
 
             key=lambda x:
-
                 (
-                    x.is_draw
-                    + x.is_search
-                    + x.is_recovery
+                    int(x.is_draw)
+                    + int(x.is_search)
+                    + int(x.is_recovery)
+                    + int(x.is_switch)
                 ),
 
             reverse=True
         )
 
 
+        # Need remaining trainer slots
+        remaining = count - len(selected)
+
+
+        # Take highest priority cards
         selected.extend(
             [
                 x.card_id
-                for x in priority[:20]
+                for x in priority[:remaining]
             ]
         )
 
 
-        remaining = count - len(selected)
+        # -----------------------------
+        # Random fill if needed
+        # -----------------------------
+
+        if len(selected) < count:
 
 
-        if remaining > 0:
-
-            remaining_cards = [
+            candidates = [
 
                 x.card_id
-
-                for x in self.pool.all_trainers
-
+                for x in normal_trainers
                 if x.card_id not in selected
 
             ]
@@ -60,13 +96,12 @@ class TrainerSelector:
 
                 random.sample(
 
-                    remaining_cards,
+                    candidates,
 
-                    min(
-                        remaining,
-                        len(remaining_cards)
-                    )
+                    count - len(selected)
+
                 )
+
             )
 
 
