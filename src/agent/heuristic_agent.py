@@ -1,4 +1,4 @@
-from engine.cg.api import OptionType, SelectType, to_observation_class
+from cg.api import OptionType, SelectType, to_observation_class
 
 
 class HeuristicAgent:

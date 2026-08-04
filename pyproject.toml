@@ -8,3 +8,9 @@ dependencies = [
     "kaggle>=1.7.4.5",
     "pandas>=2.3.3",
 ]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+
+[tool.setuptools.packages.find]
+where = ["src"]

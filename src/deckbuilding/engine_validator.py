@@ -1,4 +1,4 @@
-from engine.cg.game import (
+from cg.game import (
     battle_start,
     battle_finish,
 )

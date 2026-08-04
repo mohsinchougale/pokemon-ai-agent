@@ -1,14 +1,29 @@
-from engine.cg.game import battle_start
+from cg.game import battle_start
+
+
+def load_deck(path):
+
+    with open(path) as f:
+        return [
+            int(x.strip())
+            for x in f.readlines()
+            if x.strip()
+        ]
 
 
 def main():
 
-    deck = [1] * 60
+    deck = load_deck(
+        "generated/balanced_deck.csv"
+    )
+
+    print("Deck size:", len(deck))
 
     obs, start = battle_start(
         deck,
         deck
     )
+
 
     print("====================")
     print("Battle Pointer:")
@@ -25,6 +40,7 @@ def main():
     print("====================")
     print("Observation:")
     print(obs)
+
 
 
 if __name__ == "__main__":

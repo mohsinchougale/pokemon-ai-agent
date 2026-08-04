@@ -1,5 +1,5 @@
 from cards.card_database import CardDatabase
-from engine.cg.api import all_card_data
+from cg.api import all_card_data
 
 
 CSV = "data/raw/kaggle/pokemon-tcg-ai-battle/EN_Card_Data.csv"

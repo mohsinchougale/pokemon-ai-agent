@@ -1,4 +1,4 @@
-from engine.cg.api import all_card_data
+from cg.api import all_card_data
 from collections import Counter
 
 

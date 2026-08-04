@@ -1,4 +1,4 @@
-from engine.cg.game import battle_start
+from cg.game import battle_start
 
 
 def load_deck(path):

@@ -1,6 +1,6 @@
 from dataclasses import dataclass
 
-from engine.cg.api import to_observation_class
+from cg.api import to_observation_class
 
 
 @dataclass

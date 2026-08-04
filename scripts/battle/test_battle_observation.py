@@ -2,7 +2,7 @@ from cards.card_database import CardDatabase
 
 from deckbuilding.archetypes.balanced import BalancedArchetype
 
-from engine.cg.game import battle_start
+from cg.game import battle_start
 
 
 CSV = "data/raw/kaggle/pokemon-tcg-ai-battle/EN_Card_Data.csv"
@@ -72,7 +72,7 @@ def main():
     print("BATTLE POINTER DEBUG")
     print("=" * 40)
 
-    from engine.cg.sim import Battle
+    from cg.sim import Battle
 
     print(
         "Battle pointer:",

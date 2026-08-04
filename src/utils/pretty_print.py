@@ -1,4 +1,4 @@
-from engine.cg.api import OptionType, to_observation_class
+from cg.api import OptionType, to_observation_class
 
 
 def print_card(card_db, card_id):

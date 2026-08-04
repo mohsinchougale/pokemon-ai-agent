@@ -1,6 +1,6 @@
 import random
 
-from engine.cg.api import to_observation_class
+from cg.api import to_observation_class
 
 
 class RandomAgent:

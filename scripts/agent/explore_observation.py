@@ -1,7 +1,7 @@
 import sys
 sys.path.append("src")
 
-from engine.cg.game import battle_start, battle_select, battle_finish
+from cg.game import battle_start, battle_select, battle_finish
 from environment.ptcg_env import PTCGEnvironment
 from agent.random_agent import RandomAgent
 
