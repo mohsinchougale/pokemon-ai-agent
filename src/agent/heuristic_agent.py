@@ -3,8 +3,10 @@ from cg.api import OptionType, SelectType, to_observation_class
 
 class HeuristicAgent:
 
-    def __init__(self, deck):
+    def __init__(self, deck, card_db=None):
         self.deck = deck
+        self.card_db = card_db
+        
 
 
     def act(self, obs):

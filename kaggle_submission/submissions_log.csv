@@ -1,0 +1,4 @@
+submission_id,agent,deck,notes,status
+001,strategic_v1,original,Initial strategic agent,submitted
+002,strategic_v2,original,Improved selection policy + evaluators,ready
+003,strategic_v3,optimized,Deck mutation experiment,planned

@@ -10,7 +10,7 @@ This project aims to develop an intelligent battle agent capable of playing Pok�
 - Search and planning (future work)
 - Reinforcement learning (future work)
 
-The long-term objective is to evolve from handcrafted strategies to a fully learned agent trained through self-play.
+The long-term objective is to evolve from handcrafted strategies into a fully autonomous agent that can learn and improve through gameplay experience.
 
 ---
 
@@ -26,8 +26,9 @@ Completed:
 - Local battle execution
 - Observation parsing
 - Action submission
-- End-to-end Kaggle submission pipeline
+- Replay generation
 - Self-play evaluation framework
+- Kaggle submission pipeline
 
 The agent can now run successfully both locally and on Kaggle.
 
@@ -39,7 +40,7 @@ The agent can now run successfully both locally and on Kaggle.
 
 Baseline agent that selects a random legal action.
 
-Used as the primary benchmark for evaluating stronger agents.
+Used as the initial benchmark for evaluating stronger agents.
 
 ---
 
@@ -70,8 +71,9 @@ Current decision process includes:
 - Bench evaluation
 - Status conditions
 - Turn-state awareness
+- Action scoring
 
-The Strategic Agent serves as the current competition submission and forms the foundation for future learned policies.
+The Strategic Agent represents the current competition submission iteration and serves as the foundation for future improvements through stronger planning, search, and learned policies.
 
 ---
 
@@ -125,24 +127,24 @@ These features provide a compact representation of the current game state while 
 
 # Kaggle Integration
 
-The project now supports the complete Kaggle competition workflow.
+The project supports the complete Kaggle competition workflow.
 
 Completed:
 
 - Submission packaging
 - Competition-compatible project structure
 - Local validation
-- Successful agent submission
 - Replay generation
+- Multiple successful Kaggle submissions
 - Simulator compatibility
 
-The first fully functional agent has been successfully submitted and evaluated on the competition leaderboard.
+The current Strategic Agent has been successfully submitted multiple times to the competition leaderboard, with each iteration serving as a baseline for further improvements.
 
 ---
 
 # Evaluation
 
-Current benchmark results:
+## Local Benchmark Results
 
 | Matchup | Win Rate |
 |---------|---------:|
@@ -151,7 +153,32 @@ Current benchmark results:
 
 (1,000 self-play games per matchup)
 
-These benchmarks validate that the Strategic Agent consistently outperforms simpler baseline policies.
+These benchmarks demonstrate that the Strategic Agent performs significantly better than simpler baseline policies in the local simulation environment.
+
+However, competition results against external agents revealed limitations in the current strategy. The next development phase focuses on understanding agent behavior, analyzing gameplay decisions, and improving competitive performance.
+
+---
+
+# Current Development Focus
+
+## Replay Analysis & Strategic Improvements 🚧
+
+The current priority is moving beyond handcrafted heuristics and understanding how the agent actually plays.
+
+Focus areas:
+
+- Replay inspection
+- Action selection analysis
+- Attack prioritization
+- Energy management
+- Retreat decisions
+- Bench management
+- Opening-game strategy
+- Resource conservation
+- Opponent modeling
+- Evaluation function improvements
+
+The goal is to identify cases where the agent makes legal but strategically weak decisions and improve the underlying decision-making process.
 
 ---
 
@@ -179,20 +206,21 @@ Completed
 
 ---
 
-## Phase 3 — Strategic Improvements
+## Phase 3 — Strategic Agent Improvement 🚧
 
-Planned
+In Progress
 
-- Better opening-game decisions
-- Improved attack selection
+- Replay analysis
+- Better attack selection
 - Smarter retreat logic
-- Bench management
-- Resource conservation
-- Prize-aware strategies
+- Improved opening decisions
+- Better board evaluation
+- More effective resource management
+- Opponent-aware strategies
 
 ---
 
-## Phase 4 — Search
+## Phase 4 — Search & Planning
 
 Planned
 

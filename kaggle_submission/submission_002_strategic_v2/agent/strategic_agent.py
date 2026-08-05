@@ -84,7 +84,31 @@ class StrategicAgent:
 
 
         # ---------------------------------
-        # Encode state
+        # Secondary selections
+        # ---------------------------------
+
+        if select.type != SelectType.MAIN:
+
+            action = self.selection_policy.choose(
+                obs_class
+            )
+
+            if action is None:
+                action = [0]
+
+            if self.debug:
+                print(
+                    "SECONDARY ACTION:",
+                    select.type,
+                    action
+                )
+
+            return action
+
+
+
+        # ---------------------------------
+        # Encode state for MAIN actions only
         # ---------------------------------
 
         features = encode_state(
@@ -93,29 +117,8 @@ class StrategicAgent:
         )
 
 
-
-        # ---------------------------------
-        # Secondary selections
-        # ---------------------------------
-
-        if select.type != SelectType.MAIN:
-
-
-            action = self.selection_policy.choose(
-                obs_class
-            )
-
-
-            if self.debug:
-
-                print(
-                    "SECONDARY ACTION:",
-                    select.type,
-                    action
-                )
-
-
-            return action
+        if features is None:
+            return [0]
 
 
 
