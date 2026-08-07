@@ -45,15 +45,8 @@ class StrategicAgent:
 
 
 
-    def act(
-        self,
-        obs
-    ):
+    def act(self, obs):
 
-
-        # ---------------------------------
-        # Convert observation
-        # ---------------------------------
 
         if isinstance(obs, dict):
 
@@ -67,19 +60,23 @@ class StrategicAgent:
 
 
 
-        # ---------------------------------
-        # No action required
-        # ---------------------------------
-
-        if (
-            obs_class.select is None
-        ):
-
+        if obs_class.select is None:
             return None
 
 
 
         select = obs_class.select
+
+
+
+        features = encode_state(
+            obs,
+            self.card_db
+        )
+
+
+        if features is None:
+            return [0]
 
 
 
@@ -90,7 +87,8 @@ class StrategicAgent:
         if select.type != SelectType.MAIN:
 
             action = self.selection_policy.choose(
-                obs_class
+                obs_class,
+                features
             )
 
             if action is None:
@@ -108,21 +106,6 @@ class StrategicAgent:
 
 
         # ---------------------------------
-        # Encode state for MAIN actions only
-        # ---------------------------------
-
-        features = encode_state(
-            obs,
-            self.card_db
-        )
-
-
-        if features is None:
-            return [0]
-
-
-
-        # ---------------------------------
         # Main action selection
         # ---------------------------------
 
@@ -131,16 +114,11 @@ class StrategicAgent:
             return []
 
 
-
         best_index = 0
         best_score = float("-inf")
 
 
-
-        for idx, option in enumerate(
-            select.option
-        ):
-
+        for idx, option in enumerate(select.option):
 
             score = self.action_evaluator.evaluate(
                 option,
@@ -149,13 +127,11 @@ class StrategicAgent:
 
 
             if self.debug:
-
                 print(
                     idx,
                     option.type,
                     score
                 )
-
 
 
             if score > best_score:
@@ -165,26 +141,6 @@ class StrategicAgent:
 
 
 
-        if self.debug:
-
-            print(
-                "SELECTED:",
-                best_index,
-                "SCORE:",
-                best_score
-            )
-
-
-        action_type = str(
-            select.option[best_index].type
-        )
-
-
-        self.action_counts[action_type] = (
-            self.action_counts.get(action_type,0)
-            + 1
-        )
-        
         return [
             best_index
         ]

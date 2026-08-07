@@ -6,6 +6,7 @@ from cg.api import (
 from features.state_encoder import encode_state
 from features.action_evaluator import ActionEvaluator
 from agent.selection_policy import SelectionPolicy
+from src.utils.logger import BattleLogger
 
 
 class StrategicAgent:
@@ -19,6 +20,7 @@ class StrategicAgent:
 
         self.deck = deck
         self.card_db = card_db
+
         self.action_counts = {}
 
 
@@ -29,13 +31,17 @@ class StrategicAgent:
         )
 
 
-        # Handles secondary selections:
-        # evolution cards,
-        # yes/no choices,
-        # energy selections, etc.
+        # Handles secondary selections
 
         self.selection_policy = SelectionPolicy(
             card_db
+        )
+
+
+        # Logger
+
+        self.logger = BattleLogger(
+            agent_name="StrategicAgent"
         )
 
 
@@ -45,8 +51,15 @@ class StrategicAgent:
 
 
 
-    def act(self, obs):
+    def act(
+        self,
+        obs
+    ):
 
+
+        # ---------------------------------
+        # Convert observation
+        # ---------------------------------
 
         if isinstance(obs, dict):
 
@@ -60,7 +73,12 @@ class StrategicAgent:
 
 
 
+        # ---------------------------------
+        # No action required
+        # ---------------------------------
+
         if obs_class.select is None:
+
             return None
 
 
@@ -69,14 +87,14 @@ class StrategicAgent:
 
 
 
+        # ---------------------------------
+        # Encode state
+        # ---------------------------------
+
         features = encode_state(
             obs,
             self.card_db
         )
-
-
-        if features is None:
-            return [0]
 
 
 
@@ -86,20 +104,29 @@ class StrategicAgent:
 
         if select.type != SelectType.MAIN:
 
+
             action = self.selection_policy.choose(
-                obs_class,
-                features
+                obs_class
             )
 
-            if action is None:
-                action = [0]
+
+            self.logger.log_action(
+                observation=obs,
+                select=select,
+                selected_action=action,
+                scores=None,
+                action_type="SECONDARY"
+            )
+
 
             if self.debug:
+
                 print(
                     "SECONDARY ACTION:",
                     select.type,
                     action
                 )
+
 
             return action
 
@@ -114,11 +141,18 @@ class StrategicAgent:
             return []
 
 
+
         best_index = 0
         best_score = float("-inf")
 
+        scores = []
 
-        for idx, option in enumerate(select.option):
+
+
+        for idx, option in enumerate(
+            select.option
+        ):
+
 
             score = self.action_evaluator.evaluate(
                 option,
@@ -126,7 +160,13 @@ class StrategicAgent:
             )
 
 
+            scores.append(
+                score
+            )
+
+
             if self.debug:
+
                 print(
                     idx,
                     option.type,
@@ -134,10 +174,65 @@ class StrategicAgent:
                 )
 
 
+
             if score > best_score:
 
                 best_score = score
                 best_index = idx
+
+
+
+        selected_option = select.option[
+            best_index
+        ]
+
+
+
+        # ---------------------------------
+        # Logging
+        # ---------------------------------
+
+        self.logger.log_action(
+            observation=obs,
+            select=select,
+            selected_action=[
+                best_index
+            ],
+            scores=scores,
+            action_type=str(
+                selected_option.type
+            )
+        )
+
+
+
+        # ---------------------------------
+        # Track action distribution
+        # ---------------------------------
+
+        action_type = str(
+            selected_option.type
+        )
+
+
+        self.action_counts[action_type] = (
+            self.action_counts.get(
+                action_type,
+                0
+            )
+            + 1
+        )
+
+
+
+        if self.debug:
+
+            print(
+                "SELECTED:",
+                best_index,
+                "SCORE:",
+                best_score
+            )
 
 
 

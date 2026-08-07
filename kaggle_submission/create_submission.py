@@ -4,7 +4,7 @@ import tarfile
 from pathlib import Path
 
 
-SUBMISSION_NAME = "submission_002_strategic_v2"
+SUBMISSION_NAME = "submission_003_strategic_v3"
 
 BASE_DIR = Path(__file__).parent
 

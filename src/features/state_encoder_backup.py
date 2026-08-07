@@ -165,15 +165,11 @@ def can_attack(
 
 def encode_state(obs_dict: dict, card_db=None) -> StateFeatures:
 
-    if isinstance(obs_dict, dict):
-        obs = to_observation_class(obs_dict)
-    else:
-        obs = obs_dict
+    if isinstance(obs, dict):
+        obs = to_observation_class(obs)
 
     state = obs.current
 
-    if state is None:
-        return None
 
     my_index = state.yourIndex
 

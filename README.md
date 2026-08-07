@@ -2,15 +2,16 @@
 
 An autonomous Pokémon Trading Card Game AI built for Kaggle's **The Pokémon Company – PTCG AI Battle Challenge Simulation**.
 
-This project aims to develop an intelligent battle agent capable of playing Pokémon TCG through simulation by combining:
+This project develops an intelligent Pokémon TCG battle agent capable of interacting with the official competition simulator through:
 
-- Rule-based decision making
-- Strategic board evaluation
-- Feature engineering
-- Search and planning (future work)
-- Reinforcement learning (future work)
+- Rule-based strategic decision making
+- Feature-driven game-state evaluation
+- Combat analysis
+- Board management
+- Resource optimization
+- Future search and learning-based improvements
 
-The long-term objective is to evolve from handcrafted strategies into a fully autonomous agent that can learn and improve through gameplay experience.
+The long-term goal is to evolve from handcrafted heuristics into an autonomous agent capable of planning, adapting, and improving through gameplay experience.
 
 ---
 
@@ -23,14 +24,14 @@ Successfully integrated the official Pokémon TCG simulator provided by the comp
 Completed:
 
 - Simulator integration
-- Local battle execution
 - Observation parsing
 - Action submission
 - Replay generation
+- Local battle execution
 - Self-play evaluation framework
 - Kaggle submission pipeline
 
-The agent can now run successfully both locally and on Kaggle.
+The agent runs successfully both locally and inside the Kaggle environment.
 
 ---
 
@@ -38,48 +39,83 @@ The agent can now run successfully both locally and on Kaggle.
 
 ## Random Agent ✅
 
-Baseline agent that selects a random legal action.
+Baseline agent that selects random legal actions.
 
-Used as the initial benchmark for evaluating stronger agents.
+Used for initial benchmarking and validating simulator integration.
 
 ---
 
 ## Heuristic Agent ✅
 
-Rule-based agent that evaluates legal actions using handcrafted heuristics.
+Rule-based agent using handcrafted action scoring.
 
 Decision factors include:
 
-- Damage evaluation
+- Attack damage
 - Survival estimation
-- Board state analysis
-- Action scoring
+- Board state
+- Action value estimation
+
+Serves as an intermediate benchmark between random play and strategic reasoning.
 
 ---
 
-## Strategic Agent ✅
+## Strategic Agent V3 ✅
 
-A feature-driven battle agent that uses structured game-state information to make decisions.
+Current competition submission agent.
 
-Current decision process includes:
+The Strategic Agent uses a structured feature-based decision system to evaluate game states and select actions.
 
-- Board evaluation
-- Active Pokémon health analysis
-- Energy availability
-- Hand and deck resources
-- Prize tracking
-- Bench evaluation
-- Status conditions
-- Turn-state awareness
-- Action scoring
+Current capabilities:
 
-The Strategic Agent represents the current competition submission iteration and serves as the foundation for future improvements through stronger planning, search, and learned policies.
+### Board Evaluation
+
+Analyzes:
+
+- Active Pokémon state
+- Bench development
+- HP advantage
+- Prize situation
+- Opponent threats
+- Game phase
+
+### Combat Evaluation
+
+Considers:
+
+- Attack damage
+- Knockout opportunities
+- Opponent HP
+- Survival after attacking
+
+### Resource Management
+
+Evaluates:
+
+- Energy attachments
+- Hand resources
+- Card value
+- Evolution opportunities
+- Bench expansion
+
+### Strategic Decisions
+
+Supports:
+
+- Attack selection
+- Energy attachment decisions
+- Card selection
+- Evolution choices
+- Attached card management
+- Survival-oriented decisions
+
+Strategic Agent V3 represents the first fully integrated strategic submission capable of completing full games inside the Kaggle simulation environment.
 
 ---
 
 # Feature Engineering
 
-A dedicated feature encoder converts raw simulator observations into structured numerical features for decision making.
+A dedicated feature encoder converts raw simulator observations into structured game-state representations.
 
 Current extracted features include:
 
@@ -87,58 +123,66 @@ Current extracted features include:
 
 - Current turn
 - Turn action count
+- Game phase information
 
 ## Active Pokémon
 
-- HP
+- Current HP
 - Maximum HP
 - HP ratio
-
-for both players.
+- Available attacks
+- Energy requirements
 
 ## Resources
 
 - Hand size
 - Deck size
 - Remaining prize cards
+- Available energy
 
 ## Board State
 
+- Active Pokémon
 - Bench size
 - Attached energy count
+- Opponent board information
 
 ## Status Conditions
 
-- Poisoned
-- Burned
-- Asleep
-- Paralyzed
-- Confused
+Tracks:
+
+- Poison
+- Burn
+- Sleep
+- Paralysis
+- Confusion
 
 ## Turn Resources
+
+Tracks:
 
 - Energy attachment availability
 - Supporter usage
 - Stadium usage
 
-These features provide a compact representation of the current game state while remaining independent of the raw simulator objects.
+These features provide a compact representation of the game state while remaining independent from raw simulator objects.
 
 ---
 
 # Kaggle Integration
 
-The project supports the complete Kaggle competition workflow.
+The project supports the complete competition workflow.
 
 Completed:
 
+- Competition-compatible submission structure
 - Submission packaging
-- Competition-compatible project structure
+- Shared simulator dependency handling
 - Local validation
 - Replay generation
-- Multiple successful Kaggle submissions
-- Simulator compatibility
+- Successful Kaggle execution
 
-The current Strategic Agent has been successfully submitted multiple times to the competition leaderboard, with each iteration serving as a baseline for further improvements.
+Strategic Agent V3 has successfully completed Kaggle simulation matches against independent agents.
 
 ---
 
@@ -147,38 +191,51 @@ The current Strategic Agent has been successfully submitted multiple times to th
 ## Local Benchmark Results
 
 | Matchup | Win Rate |
-|---------|---------:|
+|---|---:|
 | Strategic vs Random | **81.7%** |
 | Strategic vs Heuristic | **87.7%** |
 
-(1,000 self-play games per matchup)
+(1,000 local evaluation games per matchup)
 
-These benchmarks demonstrate that the Strategic Agent performs significantly better than simpler baseline policies in the local simulation environment.
+These results demonstrate significant improvement over simpler baseline strategies.
 
-However, competition results against external agents revealed limitations in the current strategy. The next development phase focuses on understanding agent behavior, analyzing gameplay decisions, and improving competitive performance.
+---
+
+## External Agent Evaluation 🚧
+
+Initial external-agent matches have revealed new strategic limitations.
+
+Observed areas for improvement:
+
+- Attack prioritization
+- Opening-game decisions
+- Energy planning
+- Retreat management
+- Long-term planning
+- Opponent modeling
+
+Current efforts focus on replay analysis to identify cases where the agent makes legal but strategically weak decisions.
 
 ---
 
 # Current Development Focus
 
-## Replay Analysis & Strategic Improvements 🚧
+## Replay Analysis & Strategic Improvement 🚧
 
-The current priority is moving beyond handcrafted heuristics and understanding how the agent actually plays.
+The current priority is understanding agent behavior in realistic competitive environments.
 
 Focus areas:
 
-- Replay inspection
-- Action selection analysis
-- Attack prioritization
-- Energy management
-- Retreat decisions
+- Why attacks are selected or skipped
+- Energy allocation decisions
+- Evolution timing
+- Retreat choices
 - Bench management
-- Opening-game strategy
+- Opening strategy
 - Resource conservation
-- Opponent modeling
-- Evaluation function improvements
+- Opponent threat evaluation
 
-The goal is to identify cases where the agent makes legal but strategically weak decisions and improve the underlying decision-making process.
+The objective is improving the decision function rather than simply adding more rules.
 
 ---
 
@@ -186,7 +243,7 @@ The goal is to identify cases where the agent makes legal but strategically weak
 
 ## Phase 1 — Baseline Agents ✅
 
-Completed
+Completed:
 
 - Random Agent
 - Heuristic Agent
@@ -196,33 +253,45 @@ Completed
 
 ## Phase 2 — Environment Integration ✅
 
-Completed
+Completed:
 
 - Simulator integration
 - Observation parsing
 - Feature extraction
-- Local battle execution
+- Local battle framework
 - Kaggle submission pipeline
 
 ---
 
-## Phase 3 — Strategic Agent Improvement 🚧
+## Phase 3 — Strategic Agent V3 ✅
 
-In Progress
+Completed:
+
+- Feature-based decision making
+- Combat evaluation
+- Energy management
+- Evolution logic
+- Board evaluation
+- Kaggle-compatible submission
+
+---
+
+## Phase 4 — Strategic Improvement 🚧
+
+Current phase:
 
 - Replay analysis
 - Better attack selection
 - Smarter retreat logic
 - Improved opening decisions
-- Better board evaluation
-- More effective resource management
+- Improved evaluation functions
 - Opponent-aware strategies
 
 ---
 
-## Phase 4 — Search & Planning
+## Phase 5 — Search & Planning
 
-Planned
+Planned:
 
 - Monte Carlo Tree Search (MCTS)
 - Limited-depth planning
@@ -231,11 +300,11 @@ Planned
 
 ---
 
-## Phase 5 — Machine Learning
+## Phase 6 — Machine Learning
 
-Planned
+Planned:
 
-- Replay collection
+- Replay dataset generation
 - Imitation learning
 - Reinforcement learning
 - Self-play training
@@ -250,9 +319,9 @@ The ultimate goal is to build a competitive Pokémon TCG AI capable of:
 
 - Understanding complex board states
 - Planning multiple turns ahead
-- Adapting to hidden information
-- Learning directly from gameplay
+- Managing hidden information
+- Learning from gameplay experience
 - Improving through self-play
 - Combining symbolic reasoning with machine learning
 
-Rather than relying solely on handcrafted heuristics, the long-term vision is an autonomous agent that continually improves through experience while remaining compatible with the official Pokémon TCG simulator and Kaggle competition environment.
+The current Strategic Agent represents the first major step toward an autonomous Pokémon TCG AI system that can evolve beyond handcrafted heuristics and continuously improve through experience.

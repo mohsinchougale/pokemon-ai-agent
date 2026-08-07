@@ -2,6 +2,10 @@ from cg.api import OptionType
 
 from features.combat_evaluator import CombatEvaluator
 from features.board_evaluator import evaluate_board
+from features.game_phase import (
+    get_game_phase,
+    GamePhase,
+)
 
 
 class ActionEvaluator:
@@ -26,8 +30,10 @@ class ActionEvaluator:
         features
     ):
 
-
         action = option.type
+
+        phase = get_game_phase(features)
+
 
 
         # ----------------------------------
@@ -37,7 +43,6 @@ class ActionEvaluator:
         board_score = evaluate_board(
             features
         )
-
 
         board_score *= 0.25
 
@@ -58,28 +63,32 @@ class ActionEvaluator:
         elif action == OptionType.ATTACH:
 
             action_score = self.evaluate_energy(
-                features
+                features,
+                phase
             )
 
 
         elif action == OptionType.PLAY:
 
             action_score = self.evaluate_play(
-                features
+                features,
+                phase
             )
 
 
         elif action == OptionType.EVOLVE:
 
             action_score = self.evaluate_evolution(
-                features
+                features,
+                phase
             )
 
 
         elif action == OptionType.RETREAT:
 
             action_score = self.evaluate_retreat(
-                features
+                features,
+                phase
             )
 
 
@@ -94,7 +103,23 @@ class ActionEvaluator:
 
 
 
+        # ----------------------------------
+        # Risk evaluation
+        # ----------------------------------
+
         risk_score = self.evaluate_risk(
+            action,
+            features,
+            phase
+        )
+
+
+
+        # ----------------------------------
+        # Bench / survival evaluation
+        # ----------------------------------
+
+        bench_score = self.evaluate_bench_pressure(
             action,
             features
         )
@@ -107,7 +132,64 @@ class ActionEvaluator:
             board_score
             +
             risk_score
+            +
+            bench_score
         )
+
+
+
+    # ==================================================
+    # Bench pressure / survival
+    # ==================================================
+
+    def evaluate_bench_pressure(
+        self,
+        action,
+        features
+    ):
+
+        score = 0
+
+
+
+        # ----------------------------------
+        # Critical situation:
+        # Active Pokemon is alone
+        # ----------------------------------
+
+        if features.my_bench_size == 0:
+
+
+            # Building backup is extremely valuable
+
+            if action == OptionType.PLAY:
+
+                score += 250
+
+
+
+            # Blind attacking risks losing game
+
+            elif action == OptionType.ATTACK:
+
+                score -= 100
+
+
+
+        # ----------------------------------
+        # Some backup exists
+        # ----------------------------------
+
+        elif features.my_bench_size == 1:
+
+
+            if action == OptionType.PLAY:
+
+                score += 100
+
+
+
+        return score
 
 
 
@@ -117,7 +199,8 @@ class ActionEvaluator:
 
     def evaluate_energy(
         self,
-        features
+        features,
+        phase
     ):
 
         score = 0
@@ -173,7 +256,8 @@ class ActionEvaluator:
 
     def evaluate_play(
         self,
-        features
+        features,
+        phase
     ):
 
         score = 0
@@ -182,22 +266,35 @@ class ActionEvaluator:
 
         # Early setup
 
-        if features.turn <= 5:
+        if phase == GamePhase.EARLY:
 
             score += 100
 
 
 
-        # Bench has value but diminishing returns
+        # ----------------------------------
+        # Bench development
+        # ----------------------------------
 
-        if features.my_bench_size < 3:
+        if features.my_bench_size == 0:
 
-            score += 120
+            # Emergency:
+            # need second Pokemon
+
+            score += 250
+
+
+
+        elif features.my_bench_size < 3:
+
+            score += 150
+
 
 
         elif features.my_bench_size < 5:
 
             score += 40
+
 
 
         else:
@@ -208,7 +305,7 @@ class ActionEvaluator:
 
         # Late game avoid unnecessary setup
 
-        if features.opponent_prize_remaining <= 2:
+        if phase == GamePhase.ENDGAME:
 
             score -= 80
 
@@ -224,17 +321,17 @@ class ActionEvaluator:
 
     def evaluate_evolution(
         self,
-        features
+        features,
+        phase
     ):
 
         score = 120
 
 
 
-        if features.turn <= 3:
+        if phase == GamePhase.EARLY:
 
             score -= 20
-
 
 
         else:
@@ -242,8 +339,6 @@ class ActionEvaluator:
             score += 60
 
 
-
-        # Evolution useful when behind
 
         if (
             features.opponent_active_hp
@@ -255,9 +350,7 @@ class ActionEvaluator:
 
 
 
-        # Don't evolve while about to lose
-
-        if features.opponent_prize_remaining <= 2:
+        if phase == GamePhase.ENDGAME:
 
             score -= 100
 
@@ -273,7 +366,8 @@ class ActionEvaluator:
 
     def evaluate_retreat(
         self,
-        features
+        features,
+        phase
     ):
 
         score = 0
@@ -300,8 +394,6 @@ class ActionEvaluator:
 
 
 
-        # Retreat when opponent has lethal
-
         if (
             features.opponent_attack_damage
             >=
@@ -323,17 +415,36 @@ class ActionEvaluator:
     def evaluate_risk(
         self,
         action,
-        features
+        features,
+        phase
     ):
 
         risk = 0
 
 
 
-        # Losing position:
-        # prioritize aggressive plays
+        # ----------------------------------
+        # Early game:
+        # don't sacrifice board development
+        # ----------------------------------
 
-        if features.my_prize_remaining <= 2:
+        if (
+            features.turn <= 5
+            and
+            features.my_bench_size == 0
+            and
+            action == OptionType.ATTACK
+        ):
+
+            risk -= 80
+
+
+
+        # ----------------------------------
+        # Endgame aggression
+        # ----------------------------------
+
+        if phase == GamePhase.ENDGAME:
 
 
             if action == OptionType.ATTACK:
@@ -342,7 +453,9 @@ class ActionEvaluator:
 
 
 
+        # ----------------------------------
         # Opponent lethal threat
+        # ----------------------------------
 
         if features.opponent_can_attack:
 
